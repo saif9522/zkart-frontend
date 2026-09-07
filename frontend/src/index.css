@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color system — zKart.shop brand: violet/purple gradient + deep navy-purple,
+     sampled directly from the official logo. */
+  --color-forest-50: #f4f0fe;
+  --color-forest-100: #e3d6fc;
+  --color-forest-400: #9b5cf6;
+  --color-forest-600: #7c3aed;
+  --color-forest-700: #5b21b6;
+  --color-forest-900: #1a094c;
+
+  --color-mango-100: #fdecc8;
+  --color-mango-300: #f7c66a;
+  --color-mango-500: #f2a93b;
+  --color-mango-600: #db8f1f;
+  --color-mango-700: #b8740f;
+
+  --color-chili-100: #fbdede;
+  --color-chili-500: #d64545;
+  --color-chili-600: #b83333;
+
+  --color-rice-50: #fefdff;
+  --color-rice-100: #f6f4fb;
+  --color-rice-200: #ece7f7;
+
+  --color-ink-500: #1e1b2e;
+  --color-ink-400: #423d55;
+  --color-ink-300: #6b6480;
+  --color-ink-200: #a49dbb;
+  --color-ink-100: #ddd7ee;
+
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-card: 1.1rem;
+  --radius-pill: 999px;
+
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--color-rice-100);
+    color: var(--color-ink-500);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+  ::selection {
+    background: var(--color-mango-300);
+    color: var(--color-forest-900);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-forest-600);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+}

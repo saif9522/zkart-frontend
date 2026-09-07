@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  /* Same brand palette as the customer app, applied to a dashboard context */
+  --color-forest-50: #f4f0fe;
+  --color-forest-100: #e3d6fc;
+  --color-forest-400: #9b5cf6;
+  --color-forest-600: #7c3aed;
+  --color-forest-700: #5b21b6;
+  --color-forest-900: #1a094c;
+
+  --color-mango-100: #fdecc8;
+  --color-mango-300: #f7c66a;
+  --color-mango-500: #f2a93b;
+  --color-mango-600: #db8f1f;
+
+  --color-chili-100: #fbdede;
+  --color-chili-500: #d64545;
+  --color-chili-600: #b83333;
+
+  --color-rice-50: #fefdff;
+  --color-rice-100: #f6f4fb;
+  --color-rice-200: #ece7f7;
+
+  --color-ink-500: #1e1b2e;
+  --color-ink-400: #423d55;
+  --color-ink-300: #6b6480;
+  --color-ink-200: #a49dbb;
+  --color-ink-100: #ddd7ee;
+
+  /* Dashboard-specific: a near-black forest surface for the sidebar */
+  --color-surface-900: #150a38;
+  --color-surface-800: #1e1150;
+  --color-surface-700: #2a1a68;
+
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-card: 0.9rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+  }
+  body {
+    background: var(--color-rice-100);
+    color: var(--color-ink-500);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-forest-600);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-ink-100); border-radius: 999px; }
+}
