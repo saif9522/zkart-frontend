@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AdminImage } from '@/components/ui/AdminImage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImagePlus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -90,7 +91,7 @@ export function BannersPage() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {banners.map((b) => (
           <div key={b.id} className="rounded-[var(--radius-card)] bg-rice-50 border border-ink-100/60 overflow-hidden">
-            <img src={b.image} alt={b.title} className="h-28 w-full object-cover" />
+            <AdminImage src={b.image} alt={b.title} className="h-28 w-full object-cover" />
             <div className="p-3">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-ink-500 text-sm truncate">{b.title || 'Untitled'}</span>

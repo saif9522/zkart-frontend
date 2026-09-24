@@ -3,10 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ChevronRight, ShoppingBasket } from 'lucide-react'
 import { catalogApi } from '@/api/catalog'
+import { marketingApi } from '@/api/marketing'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { HeroSlider } from '@/components/product/HeroSlider'
 import { OffersStrip } from '@/components/product/OffersStrip'
+import { OfferSections } from '@/components/product/OfferSections'
+import { SafeImage } from '@/components/ui/SafeImage'
 import { NearbyStores } from '@/components/product/NearbyStores'
 
 export function HomePage() {
@@ -28,6 +31,9 @@ export function HomePage() {
     queryKey: ['products', 'featured'],
     queryFn: catalogApi.featured,
   })
+
+  const { data: offers } = useQuery({ queryKey: ['offers'], queryFn: marketingApi.offers })
+  const hasOfferSections = (offers ?? []).some((o) => (o.products?.length ?? 0) > 0)
 
   const { data: recommended } = useQuery({
     queryKey: ['products', 'recommended-for-you'],
@@ -54,7 +60,9 @@ export function HomePage() {
                 <a key={cat.id} href={`#cat-${cat.slug}`} className="flex flex-col items-center gap-1.5 shrink-0 w-16">
                   <div className="h-16 w-16 rounded-xl bg-rice-50 flex items-center justify-center border border-ink-100/60 shadow-sm">
                     {cat.icon ? (
-                      <img src={cat.icon} alt="" className="h-10 w-10 object-contain" loading="lazy" />
+                      <span className="h-10 w-10 flex items-center justify-center">
+                        <SafeImage src={cat.icon} className="object-contain" iconClassName="h-7 w-7 text-forest-600" />
+                      </span>
                     ) : (
                       <ShoppingBasket className="h-7 w-7 text-forest-600" />
                     )}
@@ -73,6 +81,9 @@ export function HomePage() {
           </button>
         )}
       </section>
+
+      {/* Admin-managed offer rows (Admin → Offers → add products) — right under the categories */}
+      <OfferSections />
 
       {/* Featured / trending */}
       {(featLoading || !!featured?.length) && (
@@ -131,7 +142,7 @@ export function HomePage() {
             </section>
           ))}
 
-      {!feedLoading && feed?.length === 0 && !featured?.length && (
+      {!feedLoading && feed?.length === 0 && !featured?.length && !hasOfferSections && (
         <p className="text-center text-ink-300 py-16">No products yet — check back soon.</p>
       )}
 

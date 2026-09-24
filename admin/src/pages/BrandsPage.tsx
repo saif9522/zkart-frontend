@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AdminImage } from '@/components/ui/AdminImage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImagePlus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -95,7 +96,7 @@ export function BrandsPage() {
           <div key={brand.id} className="flex items-center gap-3 p-3">
             <label className="relative h-9 w-9 shrink-0 rounded-lg border border-dashed border-ink-100 bg-rice-100 flex items-center justify-center cursor-pointer hover:border-forest-400 overflow-hidden">
               {brand.logo ? (
-                <img src={brand.logo} alt="" className="h-full w-full object-contain" />
+                <AdminImage src={brand.logo} className="h-full w-full object-contain" />
               ) : (
                 <ImagePlus className="h-4 w-4 text-ink-300" />
               )}

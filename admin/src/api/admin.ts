@@ -198,6 +198,8 @@ export const adminApi = {
     return api.patch<AdminOffer>(`/admin/offers/${id}/`, form).then((r) => r.data)
   },
   deleteOffer: (id: string) => api.delete(`/admin/offers/${id}/`),
+  setOfferProducts: (id: string, productIds: string[]) =>
+    api.post<AdminOffer>(`/admin/offers/${id}/set-products/`, { product_ids: productIds }).then((r) => r.data),
 
   // FAQs
   faqs: () => api.get<Paginated<AdminFAQ>>('/admin/faqs/').then((r) => r.data),

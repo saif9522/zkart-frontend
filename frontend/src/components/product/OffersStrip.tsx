@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { marketingApi } from '@/api/marketing'
 
 export function OffersStrip() {
-  const { data: offers } = useQuery({ queryKey: ['offers'], queryFn: marketingApi.offers })
+  const { data: allOffers } = useQuery({ queryKey: ['offers'], queryFn: marketingApi.offers })
+  // Offers that have products are shown as full sections under the categories (OfferSections).
+  const offers = allOffers?.filter((o) => !o.product_count)
 
   if (!offers || offers.length === 0) return null
 

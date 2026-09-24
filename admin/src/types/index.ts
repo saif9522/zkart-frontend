@@ -316,6 +316,18 @@ export interface AdminOffer {
   is_active: boolean
   valid_from: string | null
   valid_to: string | null
+  bg_color?: string
+  products?: OfferProductSummary[]
+}
+
+export interface OfferProductSummary {
+  id: string
+  name: string
+  selling_price: string
+  mrp: string
+  vendor_name: string
+  is_available?: boolean
+  image?: string | null
 }
 
 export interface Brand {

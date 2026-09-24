@@ -4,21 +4,30 @@ import { Link } from 'react-router-dom'
 import { marketingApi } from '@/api/marketing'
 
 export function HeroSlider() {
-  const { data: slides } = useQuery({ queryKey: ['sliders'], queryFn: marketingApi.sliders })
+  const { data: allSlides } = useQuery({ queryKey: ['sliders'], queryFn: marketingApi.sliders })
   const [active, setActive] = useState(0)
+  // Slides whose image failed to load are dropped — no broken banner, and the
+  // browser stops re-requesting a missing file every rotation.
+  const [failed, setFailed] = useState<Set<string>>(() => new Set())
+  const slides = allSlides?.filter((s) => !failed.has(s.id))
 
   useEffect(() => {
     if (!slides || slides.length <= 1) return
     const timer = setInterval(() => setActive((i) => (i + 1) % slides.length), 5000)
     return () => clearInterval(timer)
-  }, [slides])
+  }, [slides?.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!slides || slides.length === 0) return null
 
-  const slide = slides[active]
+  const slide = slides[active % slides.length]
   const content = (
     <div className="relative rounded-[var(--radius-card)] overflow-hidden aspect-[21/9] sm:aspect-[3/1] bg-forest-50">
-      <img src={slide.image} alt={slide.title} className="h-full w-full object-cover" />
+      <img
+        src={slide.image}
+        alt={slide.title}
+        className="h-full w-full object-cover"
+        onError={() => setFailed((prev) => new Set(prev).add(slide.id))}
+      />
       {(slide.title || slide.subtitle) && (
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/60 via-transparent to-transparent flex flex-col justify-end p-4 sm:p-6">
           {slide.title && <h2 className="font-display text-lg sm:text-2xl font-semibold text-rice-50">{slide.title}</h2>}
@@ -47,7 +56,7 @@ export function HeroSlider() {
             <button
               key={s.id}
               onClick={() => setActive(i)}
-              className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-forest-600' : 'w-1.5 bg-ink-100'}`}
+              className={`h-1.5 rounded-full transition-all ${i === active % slides.length ? 'w-5 bg-forest-600' : 'w-1.5 bg-ink-100'}`}
               aria-label={`Slide ${i + 1}`}
             />
           ))}

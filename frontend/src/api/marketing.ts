@@ -1,5 +1,5 @@
 import { api } from '@/api/client'
-import type { Paginated } from '@/types'
+import type { Paginated, ProductListItem } from '@/types'
 
 export interface Slider {
   id: string
@@ -27,7 +27,14 @@ export interface Offer {
   discount_label: string
   link_url: string
   display_order: number
+  /** Section background (hex). Offers with products render as a Zepto-style product row. */
+  bg_color?: string
+  product_count?: number
+  products?: ProductListItem[]
 }
+
+/** Works whether the API returns a plain list or a paginated {results} object. */
+const listOf = <T,>(data: T[] | Paginated<T>): T[] => (Array.isArray(data) ? data : data.results)
 
 export const marketingApi = {
   sliders: () => api.get<Paginated<Slider>>('/marketing/sliders/').then((r) => r.data.results),
@@ -35,5 +42,6 @@ export const marketingApi = {
     api
       .get<Paginated<Banner>>('/marketing/banners/', { params: position ? { position } : {} })
       .then((r) => r.data.results),
-  offers: () => api.get<Paginated<Offer>>('/marketing/offers/').then((r) => r.data.results),
+  offers: () => api.get<Offer[] | Paginated<Offer>>('/marketing/offers/').then((r) => listOf(r.data)),
+  offer: (id: string) => api.get<Offer>(`/marketing/offers/${id}/`).then((r) => r.data),
 }

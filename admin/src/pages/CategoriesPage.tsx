@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AdminImage } from '@/components/ui/AdminImage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImagePlus, Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -40,7 +41,7 @@ export function CategoriesPage() {
   const IconBadge = ({ cat, size = 'h-9 w-9' }: { cat: Category; size?: string }) => (
     <label className={`relative ${size} shrink-0 rounded-lg border border-dashed border-ink-100 bg-rice-100 flex items-center justify-center cursor-pointer hover:border-forest-400 overflow-hidden`}>
       {cat.icon ? (
-        <img src={cat.icon} alt="" className="h-full w-full object-contain" />
+        <AdminImage src={cat.icon} className="h-full w-full object-contain" />
       ) : (
         <ImagePlus className="h-4 w-4 text-ink-300" />
       )}
