@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
+  UploadCloud,
   Activity,
   Award,
   Boxes,
@@ -69,6 +70,7 @@ const SUPER_ADMIN_ITEMS = [
   { to: '/staff', label: 'Staff & RBAC', icon: ShieldCheck },
   { to: '/logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/backups', label: 'Backups', icon: Database },
+  { to: '/import-products', label: 'Import Old Products', icon: UploadCloud },
   { to: '/monitoring', label: 'API Monitoring', icon: Activity },
 ]
 

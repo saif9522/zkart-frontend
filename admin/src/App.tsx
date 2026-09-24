@@ -33,6 +33,7 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { StaffPage } from '@/pages/StaffPage'
 import { LogsPage } from '@/pages/LogsPage'
 import { BackupsPage } from '@/pages/BackupsPage'
+import { ImportProductsPage } from '@/pages/ImportProductsPage'
 import { MonitoringPage } from '@/pages/MonitoringPage'
 
 const queryClient = new QueryClient({
@@ -114,6 +115,14 @@ export default function App() {
               element={
                 <ProtectedRoute superAdminOnly>
                   <LogsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/import-products"
+              element={
+                <ProtectedRoute superAdminOnly>
+                  <ImportProductsPage />
                 </ProtectedRoute>
               }
             />

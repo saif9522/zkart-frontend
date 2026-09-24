@@ -1,3 +1,12 @@
+export interface ImportJob {
+  id: string | null
+  status: 'idle' | 'running' | 'done' | 'failed'
+  log: string
+  started_at: number | null
+  finished_at: number | null
+  dry_run: boolean
+}
+
 import { api } from '@/api/client'
 import type {
   AdminBanner,
@@ -198,6 +207,17 @@ export const adminApi = {
     return api.patch<AdminOffer>(`/admin/offers/${id}/`, form).then((r) => r.data)
   },
   deleteOffer: (id: string) => api.delete(`/admin/offers/${id}/`),
+  // Import old products (super admin)
+  importStatus: () => api.get<ImportJob>('/super-admin/import-products/').then((r) => r.data),
+  startImport: (file: File, opts: { dryRun: boolean; useExistingAccounts: boolean; assignTo: string }) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('dry_run', String(opts.dryRun))
+    form.append('use_existing_accounts', String(opts.useExistingAccounts))
+    if (opts.assignTo.trim()) form.append('assign_to', opts.assignTo.trim())
+    return api.post<ImportJob>('/super-admin/import-products/', form).then((r) => r.data)
+  },
+
   setOfferProducts: (id: string, productIds: string[]) =>
     api.post<AdminOffer>(`/admin/offers/${id}/set-products/`, { product_ids: productIds }).then((r) => r.data),
 
