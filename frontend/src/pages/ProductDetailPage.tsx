@@ -214,6 +214,16 @@ export function ProductDetailPage() {
             )}
           </div>
 
+          {product.vendor_is_open === false && (
+            <div className="mt-4 rounded-lg bg-mango-50 border border-mango-300 px-3 py-2.5 text-sm text-ink-500">
+              <span className="font-semibold">🔒 Shop is closed right now.</span>{' '}
+              <span className="text-ink-400">
+                {product.vendor_name} isn't taking orders at the moment — you can still add this to your cart and order
+                once the shop opens.
+              </span>
+            </div>
+          )}
+
           <div className="flex gap-2 mt-4">
             <div className="flex items-center gap-1.5 rounded-lg border border-ink-100 px-3 py-2 text-xs text-ink-400">
               <Truck className="h-3.5 w-3.5 text-forest-600" /> Fast delivery

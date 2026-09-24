@@ -64,6 +64,9 @@ export function CheckoutPage() {
     enabled: !!activeAddressId,
   })
   const outOfRangeVendor = deliveryEstimate?.find((e) => e.error)
+  const closedShops = [
+    ...new Set((cart?.items ?? []).filter((i) => i.product.vendor_is_open === false).map((i) => i.product.vendor_name)),
+  ]
 
   const createAddress = useMutation({
     mutationFn: () =>
@@ -357,16 +360,28 @@ export function CheckoutPage() {
         <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-4 text-sm">{outOfRangeVendor.error}</div>
       )}
 
+      {closedShops.length > 0 && (
+        <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-4 text-sm">
+          <p className="font-semibold">🔒 Shop is closed</p>
+          <p>
+            {closedShops.join(', ')} {closedShops.length > 1 ? 'are' : 'is'} not taking orders right now. Please try
+            again when the shop opens, or remove {closedShops.length > 1 ? 'their' : 'its'} items from your cart.
+          </p>
+        </div>
+      )}
+
       {error && <p className="text-sm text-chili-600 mb-3">{error}</p>}
 
       <Button
         onClick={() => checkout.mutate()}
         loading={checkout.isPending}
-        disabled={!activeAddressId || !!outOfRangeVendor}
+        disabled={!activeAddressId || !!outOfRangeVendor || closedShops.length > 0}
         size="lg"
         className="w-full"
       >
-        {paymentMethod === 'razorpay' ? `Pay ${formatINR(payableTotal)}` : `Place order · ${formatINR(payableTotal)}`}
+        {closedShops.length > 0
+          ? 'Shop is closed'
+          : paymentMethod === 'razorpay' ? `Pay ${formatINR(payableTotal)}` : `Place order · ${formatINR(payableTotal)}`}
       </Button>
     </div>
   )

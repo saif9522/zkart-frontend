@@ -49,6 +49,11 @@ export function ProductCard({ product }: { product: ProductListItem }) {
             ) : (
               <ShoppingBasket className="h-9 w-9 text-forest-400/30" />
             )}
+            {product.vendor_is_open === false && product.in_stock && (
+              <span className="absolute top-1.5 left-1.5 rounded-md bg-ink-500/80 text-rice-50 text-[10px] font-semibold px-1.5 py-0.5">
+                Shop closed
+              </span>
+            )}
             {!product.in_stock && (
               <div className="absolute inset-0 bg-rice-50/85 flex items-center justify-center">
                 <span className="text-[11px] font-semibold text-ink-400">Out of stock</span>

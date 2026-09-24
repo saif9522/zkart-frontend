@@ -64,6 +64,8 @@ export interface ProductListItem {
   discount_percent: number
   primary_image: string | null
   vendor_name: string
+  /** false → shop is closed: product stays visible, ordering is paused */
+  vendor_is_open?: boolean
   category_name: string
   in_stock: boolean
   rating_avg: string
@@ -110,6 +112,7 @@ export interface ProductDetail {
   attributes: ProductAttribute[]
   variants: ProductVariant[]
   vendor_id: string
+  vendor_is_open?: boolean
   vendor_name: string
   seller_business_name: string | null
   seller_address: string

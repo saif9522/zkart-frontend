@@ -42,12 +42,23 @@ export function CartPage() {
     )
   }
 
+  const closedShops = [
+    ...new Set(cart.items.filter((i) => i.product.vendor_is_open === false).map((i) => i.product.vendor_name)),
+  ]
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="font-display text-xl font-semibold text-ink-500">Your cart</h1>
         <EtaPill minutes={12} size="sm" />
       </div>
+
+      {closedShops.length > 0 && (
+        <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-3 text-sm">
+          <span className="font-semibold">Shop is closed:</span> {closedShops.join(', ')}. These items can't be ordered
+          until the shop opens — remove them to order the rest now.
+        </div>
+      )}
 
       <div className="rounded-[var(--radius-card)] bg-rice-50 border border-ink-100/60 divide-y divide-ink-100/60 overflow-hidden">
         {cart.items.map((item) => (
@@ -58,6 +69,9 @@ export function CartPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-ink-500 truncate">{item.product.name}</p>
               <p className="text-xs text-ink-300">{item.product.unit}</p>
+              {item.product.vendor_is_open === false && (
+                <p className="text-[11px] font-semibold text-chili-600 mt-0.5">🔒 Shop closed — {item.product.vendor_name}</p>
+              )}
               <p className="font-mono text-sm font-semibold text-ink-500 mt-1">{formatINR(item.subtotal)}</p>
             </div>
             <div className="flex flex-col items-end gap-2">
