@@ -1,3 +1,14 @@
+export interface ProductStats {
+  total: number
+  available: number
+  hidden: number
+  out_of_stock: number
+  low_stock: number
+  grouped: number
+  single: number
+  no_image: number
+}
+
 export interface ImportJob {
   id: string | null
   status: 'idle' | 'running' | 'done' | 'failed'
@@ -58,7 +69,7 @@ export const adminApi = {
   deleteUser: (id: string) => api.delete(`/admin/users/${id}/`),
 
   // Vendors
-  vendors: (params: { status?: string; search?: string } = {}) =>
+  vendors: (params: { status?: string; search?: string; page_size?: number } = {}) =>
     api.get<Paginated<AdminVendor>>('/admin/vendors/', { params }).then((r) => r.data),
   vendor: (id: string) => api.get<AdminVendor>(`/admin/vendors/${id}/`).then((r) => r.data),
   approveVendor: (id: string, notes?: string) =>
@@ -104,7 +115,8 @@ export const adminApi = {
   deleteCoupon: (id: string) => api.delete(`/admin/coupons/${id}/`),
 
   // Categories
-  categories: () => api.get<Paginated<Category>>('/admin/categories/').then((r) => r.data),
+  // page_size=1000 → every category (default pages of 20 hid the rest from dropdowns)
+  categories: () => api.get<Paginated<Category>>('/admin/categories/', { params: { page_size: 1000 } }).then((r) => r.data),
   createCategory: (payload: Partial<Category>) =>
     api.post<Category>('/admin/categories/', payload).then((r) => r.data),
   updateCategory: (id: string, payload: Partial<Category>) =>
@@ -303,8 +315,22 @@ export const adminApi = {
   deleteMediaAsset: (id: string) => api.delete(`/admin/media-library/${id}/`),
 
   // Products
-  products: (params: { vendor?: string; category?: string; search?: string } = {}) =>
-    api.get<Paginated<Product>>('/admin/products/', { params }).then((r) => r.data),
+  products: (
+    params: {
+      vendor?: string
+      category?: string
+      search?: string
+      page?: number
+      page_size?: number
+      stock?: 'in' | 'out' | 'low'
+      status?: 'available' | 'hidden'
+      kind?: 'single' | 'grouped'
+      no_image?: boolean
+    } = {}
+  ) => api.get<Paginated<Product>>('/admin/products/', { params }).then((r) => r.data),
+  productStats: () => api.get<ProductStats>('/admin/products/stats/').then((r) => r.data),
+  bulkProducts: (ids: string[], action: 'set_category' | 'available' | 'hidden' | 'featured' | 'unfeatured' | 'delete', category?: string) =>
+    api.post<{ updated: number }>('/admin/products/bulk/', { ids, action, category }).then((r) => r.data),
   createProduct: (payload: Partial<Product>) =>
     api.post<Product>('/admin/products/', payload).then((r) => r.data),
   getProduct: (id: string) => api.get<Product>(`/admin/products/${id}/`).then((r) => r.data),

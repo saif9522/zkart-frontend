@@ -74,7 +74,11 @@ const SUPER_ADMIN_ITEMS = [
   { to: '/monitoring', label: 'API Monitoring', icon: Activity },
 ]
 
-export function Sidebar() {
+/**
+ * Desktop: fixed left sidebar (lg+). Phone/tablet: the same menu is rendered
+ * inside a slide-in drawer by Layout (variant="drawer"), closing on navigation.
+ */
+export function Sidebar({ variant = 'desktop', onNavigate }: { variant?: 'desktop' | 'drawer'; onNavigate?: () => void } = {}) {
   const { user, refreshToken, logout } = useAuthStore()
   const navigate = useNavigate()
   const isSuperAdmin = user?.role === 'super_admin'
@@ -92,7 +96,16 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-surface-900 text-rice-100 h-screen sticky top-0">
+    <aside
+      className={
+        variant === 'drawer'
+          ? 'flex flex-col w-72 max-w-[85vw] bg-surface-900 text-rice-100 h-full'
+          : 'hidden lg:flex flex-col w-64 shrink-0 bg-surface-900 text-rice-100 h-screen sticky top-0'
+      }
+      onClick={(e) => {
+        if (onNavigate && (e.target as HTMLElement).closest('a')) onNavigate()
+      }}
+    >
       <div className="px-5 py-5 border-b border-surface-700 flex items-center gap-2.5">
         <img src="/icons/icon-192.png" alt="" className="h-8 w-8 rounded-lg shrink-0" />
         <div>

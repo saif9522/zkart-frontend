@@ -7,7 +7,7 @@ interface AuthState {
   accessToken: string | null
   refreshToken: string | null
   setSession: (user: User, tokens: { access: string; refresh: string }) => void
-  setAccessToken: (access: string) => void
+  setAccessToken: (access: string, refresh?: string) => void
   logout: () => void
 }
 
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       setSession: (user, tokens) => set({ user, accessToken: tokens.access, refreshToken: tokens.refresh }),
-      setAccessToken: (access) => set({ accessToken: access }),
+      setAccessToken: (access, refresh) => set((s) => ({ accessToken: access, refreshToken: refresh ?? s.refreshToken })),
       logout: () => set({ user: null, accessToken: null, refreshToken: null }),
     }),
     { name: 'mog-delivery-auth' }

@@ -1,7 +1,7 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ChevronRight, ShoppingBasket } from 'lucide-react'
+import { ChevronDown, ChevronRight, ShoppingBasket } from 'lucide-react'
 import { catalogApi } from '@/api/catalog'
 import { marketingApi } from '@/api/marketing'
 import { ProductCard } from '@/components/product/ProductCard'
@@ -13,8 +13,6 @@ import { SafeImage } from '@/components/ui/SafeImage'
 import { NearbyStores } from '@/components/product/NearbyStores'
 
 export function HomePage() {
-  const categoryStripRef = useRef<HTMLDivElement>(null)
-
   // One call for the icon strip, one call for every category's products —
   // not one call per category (that's what made the homepage slow before).
   const { data: categories, isLoading: catLoading } = useQuery({
@@ -43,47 +41,13 @@ export function HomePage() {
   return (
     <div className="mx-auto max-w-6xl px-4">
       <HeroSlider />
-      <OffersStrip />
-      <NearbyStores />
 
-      {/* Category strip — tap an icon to jump straight to that category's row below */}
-      <section className="mt-6 relative">
-        <div ref={categoryStripRef} className="flex gap-4 overflow-x-auto scrollbar-none pb-4">
-          {catLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex flex-col items-center gap-2 shrink-0">
-                  <div className="h-16 w-16 rounded-2xl bg-ink-100/50 animate-pulse" />
-                  <div className="h-3 w-12 rounded bg-ink-100/50 animate-pulse" />
-                </div>
-              ))
-            : categories?.map((cat) => (
-                <a key={cat.id} href={`#cat-${cat.slug}`} className="flex flex-col items-center gap-1.5 shrink-0 w-16">
-                  <div className="h-16 w-16 rounded-xl bg-rice-50 flex items-center justify-center border border-ink-100/60 shadow-sm">
-                    {cat.icon ? (
-                      <span className="h-10 w-10 flex items-center justify-center">
-                        <SafeImage src={cat.icon} className="object-contain" iconClassName="h-7 w-7 text-forest-600" />
-                      </span>
-                    ) : (
-                      <ShoppingBasket className="h-7 w-7 text-forest-600" />
-                    )}
-                  </div>
-                  <span className="text-[11px] text-center text-ink-400 leading-tight">{cat.name}</span>
-                </a>
-              ))}
-        </div>
-        {!catLoading && (categories?.length ?? 0) > 8 && (
-          <button
-            onClick={() => categoryStripRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 -mt-2 h-9 w-9 rounded-full bg-ink-500 text-rice-50 items-center justify-center shadow-md hover:bg-ink-400"
-            aria-label="Show more categories"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
-      </section>
+      <CategoryGrid categories={categories} loading={catLoading} />
 
       {/* Admin-managed offer rows (Admin → Offers → add products) — right under the categories */}
       <OfferSections />
+      <OffersStrip />
+      <NearbyStores />
 
       {/* Featured / trending */}
       {(featLoading || !!featured?.length) && (
@@ -148,5 +112,70 @@ export function HomePage() {
 
       <div className="h-8" />
     </div>
+  )
+}
+
+type CategoryItem = { id: string; name: string; slug: string; icon?: string | null }
+
+/**
+ * Zepto-style "Shop by Category": big picture tiles in a grid, full names
+ * (2 lines), 4 per row on phones → 10 on desktop. Collapsed to 2 rows until
+ * "See All" is tapped.
+ */
+function CategoryGrid({ categories, loading }: { categories?: CategoryItem[]; loading: boolean }) {
+  const [expanded, setExpanded] = useState(false)
+  const list = categories ?? []
+  // collapsed: 8 on phones (2 rows of 4), 20 on desktop (2 rows of 10)
+  const MOBILE = 8
+  const DESKTOP = 20
+  const hasMore = list.length > MOBILE
+
+  return (
+    <section className="mt-6">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-display text-lg sm:text-xl font-semibold text-ink-500">Shop by Category</h2>
+        {hasMore && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className={`flex items-center gap-0.5 text-xs sm:text-sm font-semibold text-chili-600 hover:text-chili-500 ${
+              list.length <= DESKTOP ? 'lg:hidden' : ''
+            }`}
+          >
+            {expanded ? 'Show less' : 'See All'}
+            {expanded ? <ChevronDown className="h-4 w-4 rotate-180" /> : <ChevronRight className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-x-2.5 sm:gap-x-3 gap-y-4">
+        {loading
+          ? Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-2">
+                <div className="aspect-square rounded-2xl bg-ink-100/50 animate-pulse" />
+                <div className="h-3 w-3/4 mx-auto rounded bg-ink-100/50 animate-pulse" />
+              </div>
+            ))
+          : list.map((cat, i) => {
+              const hiddenWhenCollapsed = !expanded && (i >= DESKTOP ? 'hidden' : i >= MOBILE ? 'hidden lg:flex' : '')
+              return (
+                <Link
+                  key={cat.id}
+                  to={`/search?category=${cat.slug}`}
+                  className={`group flex flex-col items-center gap-1.5 ${hiddenWhenCollapsed || ''}`}
+                >
+                  <div className="w-full aspect-square rounded-2xl bg-[#F4F0FF] flex items-center justify-center overflow-hidden transition-transform group-hover:scale-[1.03]">
+                    {cat.icon ? (
+                      <SafeImage src={cat.icon} alt={cat.name} className="object-contain p-1" iconClassName="h-8 w-8 text-forest-600/60" />
+                    ) : (
+                      <ShoppingBasket className="h-8 w-8 text-forest-600/60" />
+                    )}
+                  </div>
+                  <span className="text-[11px] sm:text-[13px] font-medium text-ink-500 text-center leading-snug line-clamp-2 break-words w-full">
+                    {cat.name}
+                  </span>
+                </Link>
+              )
+            })}
+      </div>
+    </section>
   )
 }

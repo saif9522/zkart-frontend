@@ -347,6 +347,8 @@ export interface ProductImage {
 
 export interface Product {
   id: string
+  /** >0 = "grouped" product (has size/colour variants) */
+  variant_count?: number
   vendor: string
   vendor_name: string
   category: string

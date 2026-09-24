@@ -1,57 +1,18 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { MapPin, Store } from 'lucide-react'
+import { Store } from 'lucide-react'
 import { vendorsApi } from '@/api/vendors'
+import { useLocationStore } from '@/store/location'
 
 export function NearbyStores() {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'denied'>('idle')
+  // Location comes from the header picker (Zepto-style) — no separate prompt card here.
+  const location = useLocationStore((st) => st.location)
+  const coords = location ? { lat: location.lat, lng: location.lng } : null
 
   const { data: stores } = useQuery({
     queryKey: ['nearby-stores', coords?.lat, coords?.lng],
     queryFn: () => vendorsApi.nearby(coords!.lat, coords!.lng),
     enabled: !!coords,
   })
-
-  const requestLocation = () => {
-    if (!('geolocation' in navigator)) {
-      setStatus('denied')
-      return
-    }
-    setStatus('loading')
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        setStatus('idle')
-      },
-      () => setStatus('denied'),
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
-  }
-
-  if (!coords) {
-    return (
-      <section className="px-4 py-4">
-        <button
-          onClick={requestLocation}
-          disabled={status === 'loading'}
-          className="w-full flex items-center gap-3 rounded-[var(--radius-card)] bg-rice-50 border border-dashed border-ink-100 p-4 text-left"
-        >
-          <div className="h-10 w-10 rounded-full bg-forest-50 flex items-center justify-center shrink-0">
-            <MapPin className="h-5 w-5 text-forest-600" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-ink-500">
-              {status === 'loading' ? 'Locating you...' : 'Aapke paas ke stores dekhein'}
-            </p>
-            <p className="text-xs text-ink-300">
-              {status === 'denied' ? 'Location permission nahi mili — settings me check karein.' : 'Location on karein'}
-            </p>
-          </div>
-        </button>
-      </section>
-    )
-  }
 
   if (!stores || stores.length === 0) return null
 

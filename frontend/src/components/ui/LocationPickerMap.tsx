@@ -7,9 +7,11 @@ interface LocationPickerMapProps {
   latitude: number
   longitude: number
   onChange: (lat: number, lng: number) => void
+  /** Text shown when Google Maps can't load (no key / offline). */
+  unavailableText?: string
 }
 
-export function LocationPickerMap({ latitude, longitude, onChange }: LocationPickerMapProps) {
+export function LocationPickerMap({ latitude, longitude, onChange, unavailableText }: LocationPickerMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<any>(null)
   const markerInstance = useRef<any>(null)
@@ -70,7 +72,7 @@ export function LocationPickerMap({ latitude, longitude, onChange }: LocationPic
   if (status === 'unavailable') {
     return (
       <p className="text-xs text-ink-300 rounded-lg border border-dashed border-ink-100 px-3 py-4 text-center">
-        Map unavailable (no Google Maps API key configured) — enter latitude/longitude manually below.
+        {unavailableText ?? 'Map unavailable (no Google Maps API key configured) — enter latitude/longitude manually below.'}
       </p>
     )
   }

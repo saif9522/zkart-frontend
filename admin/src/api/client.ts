@@ -14,14 +14,29 @@ api.interceptors.request.use((config) => {
 let refreshPromise: Promise<string | null> | null = null
 
 async function refreshAccessToken(): Promise<string | null> {
+  // Another tab may have refreshed (and rotated) the tokens — read the latest saved copy first.
+  await useAuthStore.persist?.rehydrate?.()
   const refreshToken = useAuthStore.getState().refreshToken
   if (!refreshToken) return null
+
   try {
     const { data } = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, { refresh: refreshToken })
-    useAuthStore.getState().setAccessToken(data.access)
+    // The backend ROTATES refresh tokens (old one is blacklisted), so the new
+    // one MUST be saved — dropping it was what logged people out every ~30 min.
+    useAuthStore.getState().setAccessToken(data.access, data.refresh)
     return data.access as string
-  } catch {
-    useAuthStore.getState().logout()
+  } catch (err) {
+    const status = axios.isAxiosError(err) ? err.response?.status : undefined
+    if (status === 400 || status === 401) {
+      // Token really is invalid/expired — unless another tab rotated it a moment ago.
+      await useAuthStore.persist?.rehydrate?.()
+      const latest = useAuthStore.getState()
+      if (latest.refreshToken && latest.refreshToken !== refreshToken && latest.accessToken) {
+        return latest.accessToken
+      }
+      useAuthStore.getState().logout()
+    }
+    // Network error / server waking up (Render free plan) / 5xx → keep the session.
     return null
   }
 }

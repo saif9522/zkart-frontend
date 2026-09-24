@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, MapPin, Search, ShoppingCart, User as UserIcon, Zap } from 'lucide-react'
+import { Search, ShoppingCart, User as UserIcon, Zap } from 'lucide-react'
+import { LocationButton, LocationPicker } from '@/components/layout/LocationPicker'
 import { useState } from 'react'
 import { useCart } from '@/hooks/useCart'
 import { useAuthStore } from '@/store/auth'
@@ -20,20 +21,18 @@ export function Header() {
     <header className="sticky top-0 z-30 bg-rice-50/95 backdrop-blur border-b border-ink-100/60">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-4 sm:gap-6">
         {/* Logo + delivery-promise / location, stacked — Zepto-style left block */}
-        <Link to="/" className="flex flex-col shrink-0">
-          <span className="font-display text-xl font-bold text-forest-700 leading-none flex items-center gap-1.5">
+        <div className="flex flex-col shrink-0">
+          <Link to="/" className="font-display text-xl font-bold text-forest-700 leading-none flex items-center gap-1.5">
             <img src="/icons/icon-192.png" alt="" className="h-6 w-6 rounded-md" />
             zKart.shop
-          </span>
+          </Link>
           <span className="hidden sm:flex items-center gap-2.5 text-xs text-ink-300 mt-1">
             <span className="flex items-center gap-0.5 font-semibold text-forest-700">
               <Zap className="h-3 w-3 fill-forest-700" /> Delivery in minutes*
             </span>
-            <span className="flex items-center gap-0.5">
-              Select Location <ChevronDown className="h-3 w-3" />
-            </span>
+            <LocationButton />
           </span>
-        </Link>
+        </div>
 
         {/* Search — takes the middle space, Zepto-style */}
         <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
@@ -74,10 +73,9 @@ export function Header() {
         <span className="flex items-center gap-0.5 font-semibold text-forest-700">
           <Zap className="h-3 w-3 fill-forest-700" /> Delivery in minutes*
         </span>
-        <span className="flex items-center gap-0.5">
-          <MapPin className="h-3 w-3" /> Garhwa <ChevronDown className="h-3 w-3" />
-        </span>
+        <LocationButton compact />
       </div>
+      <LocationPicker />
     </header>
   )
 }
