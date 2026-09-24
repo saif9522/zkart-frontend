@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Heart, ShoppingBasket, Trash2 } from 'lucide-react'
+import { SafeImage } from '@/components/ui/SafeImage'
+import { Heart, Trash2 } from 'lucide-react'
 import { useWishlist } from '@/hooks/useWishlist'
 import { useCart } from '@/hooks/useCart'
 import { useAuthStore } from '@/store/auth'
@@ -49,11 +50,7 @@ export function WishlistPage() {
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 p-3">
             <Link to={`/product/${item.product.slug}`} className="h-16 w-16 rounded-lg bg-forest-50 flex items-center justify-center shrink-0 overflow-hidden">
-              {item.product.primary_image ? (
-                <img src={item.product.primary_image} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <ShoppingBasket className="h-6 w-6 text-forest-400/40" />
-              )}
+              <SafeImage src={item.product.primary_image} />
             </Link>
             <Link to={`/product/${item.product.slug}`} className="flex-1 min-w-0">
               <p className="text-sm font-medium text-ink-500 truncate">{item.product.name}</p>

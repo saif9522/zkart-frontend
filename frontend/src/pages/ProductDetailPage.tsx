@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { SafeImage } from '@/components/ui/SafeImage'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ShoppingBasket, Star, Truck, RotateCcw, ChevronRight, Heart } from 'lucide-react'
@@ -168,7 +169,9 @@ export function ProductDetailPage() {
                   onClick={() => { setActiveImage(i); setImageFailed(false) }}
                   className={`h-14 w-14 rounded-lg overflow-hidden border-2 ${i === activeImage ? 'border-forest-600' : 'border-transparent'}`}
                 >
-                  <img src={img.image} alt="" className="h-full w-full object-cover" />
+                  <span className="flex h-full w-full items-center justify-center bg-forest-50">
+                    <SafeImage src={img.image} iconClassName="h-5 w-5 text-forest-400/40" />
+                  </span>
                 </button>
               ))}
             </div>
