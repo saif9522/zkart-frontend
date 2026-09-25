@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { NotificationBell } from '@/components/layout/NotificationBell'
+import { StorageWarning } from '@/components/layout/StorageWarning'
 import { useAuthStore } from '@/store/auth'
 
 export function Layout() {
@@ -56,6 +57,7 @@ export function Layout() {
           <span className="hidden lg:block" />
           <NotificationBell />
         </header>
+        <StorageWarning />
         <main className="p-3 sm:p-6 max-w-7xl mx-auto">
           <Outlet />
         </main>

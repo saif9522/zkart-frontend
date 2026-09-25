@@ -19,7 +19,7 @@ export interface ImportJob {
 }
 
 import { api } from '@/api/client'
-import type {
+import type { AdminHomeSection,
   AdminBanner,
   AdminBlogPost,
   AdminContactMessage,
@@ -229,6 +229,24 @@ export const adminApi = {
     if (opts.assignTo.trim()) form.append('assign_to', opts.assignTo.trim())
     return api.post<ImportJob>('/super-admin/import-products/', form).then((r) => r.data)
   },
+
+  storageStatus: (refresh = false) =>
+    api
+      .get<{ mode: 'server_disk' | 'hostinger' | 'supabase' | 's3'; persistent: boolean; ok: boolean; message: string; fix: string }>(
+        '/admin/storage-status/',
+        { params: refresh ? { refresh: 1 } : {} }
+      )
+      .then((r) => r.data),
+
+  // Homepage sections
+  homeSections: () => api.get<Paginated<AdminHomeSection>>('/admin/home-sections/', { params: { page_size: 200 } }).then((r) => r.data),
+  createHomeSection: (payload: Partial<AdminHomeSection>) => api.post<AdminHomeSection>('/admin/home-sections/', payload).then((r) => r.data),
+  updateHomeSection: (id: string, payload: Partial<AdminHomeSection>) =>
+    api.patch<AdminHomeSection>(`/admin/home-sections/${id}/`, payload).then((r) => r.data),
+  deleteHomeSection: (id: string) => api.delete(`/admin/home-sections/${id}/`),
+  setHomeSectionProducts: (id: string, productIds: string[]) =>
+    api.post<AdminHomeSection>(`/admin/home-sections/${id}/set-products/`, { product_ids: productIds }).then((r) => r.data),
+  reorderHomeSections: (ids: string[]) => api.post('/admin/home-sections/reorder/', { ids }).then((r) => r.data),
 
   setOfferProducts: (id: string, productIds: string[]) =>
     api.post<AdminOffer>(`/admin/offers/${id}/set-products/`, { product_ids: productIds }).then((r) => r.data),
