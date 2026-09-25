@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
+  LayoutTemplate,
   UploadCloud,
   Activity,
   Award,
@@ -52,6 +53,7 @@ const ADMIN_ITEMS = [
   { to: '/reviews', label: 'Reviews', icon: MessageSquare },
   { to: '/sliders', label: 'Sliders', icon: GalleryHorizontal },
   { to: '/banners', label: 'Banners', icon: Image },
+  { to: '/home-sections', label: 'Homepage Sections', icon: LayoutTemplate },
   { to: '/offers', label: 'Offers', icon: Gift },
   { to: '/faqs', label: 'FAQs', icon: HelpCircle },
   { to: '/pages', label: 'Pages', icon: FileText },

@@ -230,6 +230,7 @@ export const adminApi = {
     return api.post<ImportJob>('/super-admin/import-products/', form).then((r) => r.data)
   },
 
+<<<<<<< HEAD
   storageStatus: (refresh = false) =>
     api
       .get<{ mode: 'server_disk' | 'hostinger' | 'supabase' | 's3'; persistent: boolean; ok: boolean; message: string; fix: string }>(
@@ -238,6 +239,8 @@ export const adminApi = {
       )
       .then((r) => r.data),
 
+=======
+>>>>>>> 1c4a6e8b7c4ae187a295e22b842347311b0eacda
   // Homepage sections
   homeSections: () => api.get<Paginated<AdminHomeSection>>('/admin/home-sections/', { params: { page_size: 200 } }).then((r) => r.data),
   createHomeSection: (payload: Partial<AdminHomeSection>) => api.post<AdminHomeSection>('/admin/home-sections/', payload).then((r) => r.data),

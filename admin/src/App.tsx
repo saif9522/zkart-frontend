@@ -16,6 +16,7 @@ import { ReviewsPage } from '@/pages/ReviewsPage'
 import { SlidersPage } from '@/pages/SlidersPage'
 import { BannersPage } from '@/pages/BannersPage'
 import { OffersPage } from '@/pages/OffersPage'
+import { HomeSectionsPage } from '@/pages/HomeSectionsPage'
 import { FAQsPage } from '@/pages/FAQsPage'
 import { PagesPage } from '@/pages/PagesPage'
 import { BlogPage } from '@/pages/BlogPage'
@@ -72,6 +73,7 @@ export default function App() {
             <Route path="/sliders" element={<SlidersPage />} />
             <Route path="/banners" element={<BannersPage />} />
             <Route path="/offers" element={<OffersPage />} />
+            <Route path="/home-sections" element={<HomeSectionsPage />} />
             <Route path="/faqs" element={<FAQsPage />} />
             <Route path="/pages" element={<PagesPage />} />
             <Route path="/blog" element={<BlogPage />} />

@@ -33,6 +33,18 @@ export interface Offer {
   products?: ProductListItem[]
 }
 
+/** A homepage row managed from Admin → Homepage Sections. */
+export interface HomeSection {
+  id: string
+  title: string
+  subtitle: string
+  kind: 'featured' | 'recommended' | 'new_arrivals' | 'best_sellers' | 'top_deals' | 'category' | 'manual' | 'offers' | 'category_rows'
+  bg_color: string
+  category_slug: string | null
+  display_order: number
+  products: ProductListItem[]
+}
+
 /** Works whether the API returns a plain list or a paginated {results} object. */
 const listOf = <T,>(data: T[] | Paginated<T>): T[] => (Array.isArray(data) ? data : data.results)
 
@@ -44,4 +56,6 @@ export const marketingApi = {
       .then((r) => r.data.results),
   offers: () => api.get<Offer[] | Paginated<Offer>>('/marketing/offers/').then((r) => listOf(r.data)),
   offer: (id: string) => api.get<Offer>(`/marketing/offers/${id}/`).then((r) => r.data),
+  homeSections: () => api.get<HomeSection[] | Paginated<HomeSection>>('/marketing/home-sections/').then((r) => listOf(r.data)),
+  homeSection: (id: string) => api.get<HomeSection>(`/marketing/home-sections/${id}/`).then((r) => r.data),
 }

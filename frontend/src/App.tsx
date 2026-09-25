@@ -7,6 +7,7 @@ import { RegisterPage } from '@/pages/RegisterPage'
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
 import { SearchPage } from '@/pages/SearchPage'
 import { OfferPage } from '@/pages/OfferPage'
+import { CollectionPage } from '@/pages/CollectionPage'
 import { ProductDetailPage } from '@/pages/ProductDetailPage'
 import { CartPage } from '@/pages/CartPage'
 import { WishlistPage } from '@/pages/WishlistPage'
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/offers/:id" element={<OfferPage />} />
+            <Route path="/collection/:id" element={<CollectionPage />} />
             <Route path="/product/:slug" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />

@@ -320,6 +320,27 @@ export interface AdminOffer {
   products?: OfferProductSummary[]
 }
 
+export type HomeSectionKind =
+  | 'featured' | 'recommended' | 'new_arrivals' | 'best_sellers' | 'top_deals'
+  | 'category' | 'manual' | 'offers' | 'category_rows'
+
+export interface AdminHomeSection {
+  id: string
+  title: string
+  subtitle: string
+  kind: HomeSectionKind
+  kind_label: string
+  category: string | null
+  category_name: string | null
+  product_limit: number
+  bg_color: string
+  display_order: number
+  is_active: boolean
+  valid_from: string | null
+  valid_to: string | null
+  products: OfferProductSummary[]
+}
+
 export interface OfferProductSummary {
   id: string
   name: string

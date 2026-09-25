@@ -226,7 +226,7 @@ export function OffersPage() {
 }
 
 /** Search products and build the ordered list for an offer section. */
-function ProductPicker({ picked, onChange }: { picked: OfferProductSummary[]; onChange: (p: OfferProductSummary[]) => void }) {
+export function ProductPicker({ picked, onChange }: { picked: OfferProductSummary[]; onChange: (p: OfferProductSummary[]) => void }) {
   const [term, setTerm] = useState('')
   const [debounced, setDebounced] = useState('')
   useEffect(() => {
