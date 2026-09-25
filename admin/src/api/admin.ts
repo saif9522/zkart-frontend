@@ -19,7 +19,8 @@ export interface ImportJob {
 }
 
 import { api } from '@/api/client'
-import type { AdminHomeSection,
+import type {
+  AdminHomeSection,
   AdminBanner,
   AdminBlogPost,
   AdminContactMessage,
@@ -115,7 +116,6 @@ export const adminApi = {
   deleteCoupon: (id: string) => api.delete(`/admin/coupons/${id}/`),
 
   // Categories
-  // page_size=1000 → every category (default pages of 20 hid the rest from dropdowns)
   categories: () => api.get<Paginated<Category>>('/admin/categories/', { params: { page_size: 1000 } }).then((r) => r.data),
   createCategory: (payload: Partial<Category>) =>
     api.post<Category>('/admin/categories/', payload).then((r) => r.data),
@@ -153,8 +153,6 @@ export const adminApi = {
   createSlider: (payload: Partial<AdminSlider> & { imageFile: File }) => {
     const { imageFile, ...rest } = payload
     const form = new FormData()
-    // DRF quirk: with multipart data, an omitted BooleanField defaults to
-    // False (HTML checkbox semantics) instead of the model's default=True.
     form.append('is_active', String(rest.is_active ?? true))
     Object.entries(rest).forEach(([k, v]) => {
       if (k !== 'is_active' && v !== undefined && v !== null) form.append(k, v as string)
@@ -219,6 +217,7 @@ export const adminApi = {
     return api.patch<AdminOffer>(`/admin/offers/${id}/`, form).then((r) => r.data)
   },
   deleteOffer: (id: string) => api.delete(`/admin/offers/${id}/`),
+
   // Import old products (super admin)
   importStatus: () => api.get<ImportJob>('/super-admin/import-products/').then((r) => r.data),
   startImport: (file: File, opts: { dryRun: boolean; useExistingAccounts: boolean; assignTo: string }) => {
@@ -230,7 +229,6 @@ export const adminApi = {
     return api.post<ImportJob>('/super-admin/import-products/', form).then((r) => r.data)
   },
 
-<<<<<<< HEAD
   storageStatus: (refresh = false) =>
     api
       .get<{ mode: 'server_disk' | 'hostinger' | 'supabase' | 's3'; persistent: boolean; ok: boolean; message: string; fix: string }>(
@@ -239,8 +237,6 @@ export const adminApi = {
       )
       .then((r) => r.data),
 
-=======
->>>>>>> 1c4a6e8b7c4ae187a295e22b842347311b0eacda
   // Homepage sections
   homeSections: () => api.get<Paginated<AdminHomeSection>>('/admin/home-sections/', { params: { page_size: 200 } }).then((r) => r.data),
   createHomeSection: (payload: Partial<AdminHomeSection>) => api.post<AdminHomeSection>('/admin/home-sections/', payload).then((r) => r.data),
