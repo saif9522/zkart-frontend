@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useQuery } from '@tanstack/react-query'
 import { adminApi } from '@/api/admin'
 import { Badge } from '@/components/ui/Badge'
@@ -83,6 +84,7 @@ export function OrdersPage() {
           </tbody>
         </table>
       </div>
+      <Pager endpoint="/admin/orders/" resetOn={[status, search]} />
     </div>
   )
 }

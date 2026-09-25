@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '@/api/admin'
 
@@ -184,6 +185,7 @@ export function InventoryPage() {
           </table>
         </div>
       )}
+      <Pager endpoint="/admin/products/" />
     </div>
   )
 }

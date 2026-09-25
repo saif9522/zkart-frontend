@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Eye } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -274,6 +275,7 @@ export function DeliveryPartnersPage() {
           onClose={() => setLightboxIndex(null)}
         />
       )}
+      <Pager endpoint="/admin/delivery-partners/" resetOn={[status]} />
     </div>
   )
 }

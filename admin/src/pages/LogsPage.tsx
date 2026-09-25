@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useQuery } from '@tanstack/react-query'
 import { superAdminApi } from '@/api/superadmin'
 import { cn, formatDate } from '@/lib/utils'
@@ -83,6 +84,7 @@ export function LogsPage() {
           </tbody>
         </table>
       </div>
+      <Pager endpoint="/super-admin/logs/" resetOn={[pathFilter, methodFilter]} />
     </div>
   )
 }

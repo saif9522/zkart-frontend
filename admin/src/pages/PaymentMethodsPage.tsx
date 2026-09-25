@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -187,6 +188,7 @@ export function PaymentMethodsPage() {
           </Button>
         </form>
       </Modal>
+      <Pager endpoint="/admin/payment-methods/" />
     </div>
   )
 }

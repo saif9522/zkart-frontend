@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Camera, Copy, Eye, Globe, Mail, MessageCircle, MessageSquare, Pencil,
@@ -539,6 +540,7 @@ export function CampaignsPage() {
           </div>
         )}
       </Modal>
+      <Pager endpoint="/admin/campaigns/" />
     </div>
   )
 }

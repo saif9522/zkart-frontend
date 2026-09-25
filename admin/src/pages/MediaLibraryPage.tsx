@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Copy, File as FileIcon, Search, Trash2, Upload } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -91,6 +92,7 @@ export function MediaLibraryPage() {
           <p className="text-ink-300 text-center py-8 col-span-full">No media uploaded yet.</p>
         )}
       </div>
+      <Pager endpoint="/admin/media-library/" resetOn={[search]} />
     </div>
   )
 }

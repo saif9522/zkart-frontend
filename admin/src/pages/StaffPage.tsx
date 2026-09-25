@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { superAdminApi } from '@/api/superadmin'
@@ -250,6 +251,7 @@ export function StaffPage() {
           </Button>
         </form>
       </Modal>
+      <Pager endpoint="/super-admin/staff-permissions/" />
     </div>
   )
 }

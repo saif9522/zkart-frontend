@@ -35,47 +35,53 @@ export function ProductCard({ product }: { product: ProductListItem }) {
   const [imageFailed, setImageFailed] = useState(false)
 
   return (
-    <div className="group relative flex flex-col rounded-xl bg-rice-50 border border-ink-100/50 overflow-visible">
+    <div className="group relative flex flex-col h-full">
+      {/* Photo box — ADD sits inside its bottom-right corner (Zepto-style) */}
       <div className="relative">
         <Link to={`/product/${product.slug}`} className="block">
-          <div className="relative aspect-square rounded-t-xl bg-white flex items-center justify-center overflow-hidden">
+          <div className="relative aspect-square rounded-xl bg-[#F5F5F7] border border-ink-100/40 flex items-center justify-center overflow-hidden">
             {product.primary_image && !imageFailed ? (
               <img
                 src={product.primary_image}
                 alt={product.name}
-                className="h-full w-full object-cover p-1.5"
+                loading="lazy"
+                className="h-full w-full object-contain p-2 mix-blend-multiply transition-transform duration-200 group-hover:scale-[1.03]"
                 onError={() => setImageFailed(true)}
               />
             ) : (
               <ShoppingBasket className="h-9 w-9 text-forest-400/30" />
             )}
+            {product.discount_percent > 0 && product.in_stock && (
+              <span className="absolute top-0 left-0 rounded-br-lg rounded-tl-xl bg-forest-600 text-rice-50 text-[10px] font-bold px-1.5 py-0.5">
+                {product.discount_percent}% OFF
+              </span>
+            )}
             {product.vendor_is_open === false && product.in_stock && (
-              <span className="absolute top-1.5 left-1.5 rounded-md bg-ink-500/80 text-rice-50 text-[10px] font-semibold px-1.5 py-0.5">
+              <span className="absolute top-1.5 right-1.5 rounded-md bg-ink-500/80 text-rice-50 text-[10px] font-semibold px-1.5 py-0.5">
                 Shop closed
               </span>
             )}
             {!product.in_stock && (
-              <div className="absolute inset-0 bg-rice-50/85 flex items-center justify-center">
-                <span className="text-[11px] font-semibold text-ink-400">Out of stock</span>
+              <div className="absolute inset-0 bg-rice-50/80 flex items-center justify-center">
+                <span className="text-[11px] font-semibold text-ink-400 bg-rice-50 rounded px-2 py-0.5 border border-ink-100">Out of stock</span>
               </div>
             )}
           </div>
         </Link>
 
-        {/* ADD button floats over the bottom edge of the image, Zepto-style */}
         {product.in_stock && (
-          <div className="absolute right-2 bottom-0 translate-y-1/2 z-10">
+          <div className="absolute right-1.5 bottom-1.5 z-10">
             {quantity > 0 ? (
-              <div className="flex items-center gap-0 rounded-lg bg-forest-600 text-rice-50 text-xs font-bold shadow-sm overflow-hidden">
-                <button onClick={handleDecrease} className="px-2 py-1.5 hover:bg-forest-700">−</button>
-                <span className="px-1 font-mono min-w-[1.2rem] text-center">{quantity}</span>
-                <button onClick={handleIncrease} className="px-2 py-1.5 hover:bg-forest-700">+</button>
+              <div className="flex items-center rounded-lg bg-[#EF4372] text-rice-50 text-xs font-bold shadow-md overflow-hidden h-8">
+                <button onClick={handleDecrease} className="w-7 h-full hover:bg-black/10" aria-label="Decrease">−</button>
+                <span className="min-w-[1.1rem] text-center tabular-nums">{quantity}</span>
+                <button onClick={handleIncrease} className="w-7 h-full hover:bg-black/10" aria-label="Increase">+</button>
               </div>
             ) : (
               <button
                 onClick={handleAdd}
                 disabled={addItem.isPending}
-                className="rounded-lg bg-rice-50 border border-forest-600 text-forest-600 text-xs font-bold px-3.5 py-1.5 shadow-sm hover:bg-forest-600 hover:text-rice-50 transition-colors disabled:opacity-50"
+                className="h-8 rounded-lg bg-white border border-[#EF4372] text-[#EF4372] text-xs font-extrabold px-4 shadow-md hover:bg-[#FFF0F4] transition-colors disabled:opacity-50"
               >
                 ADD
               </button>
@@ -84,26 +90,25 @@ export function ProductCard({ product }: { product: ProductListItem }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-0.5 px-2.5 pt-4 pb-2.5">
-        <div className="flex items-baseline gap-1.5">
-          <span className="font-mono text-sm font-bold text-ink-500">{formatINR(product.selling_price)}</span>
+      <div className="flex flex-1 flex-col gap-1 pt-2 px-0.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="rounded-md bg-[#0C831F] text-white text-[13px] font-bold px-1.5 py-0.5 leading-tight tabular-nums">
+            {formatINR(product.selling_price)}
+          </span>
           {product.discount_percent > 0 && (
-            <span className="font-mono text-[11px] text-ink-200 line-through">{formatINR(product.mrp)}</span>
+            <span className="text-[12px] text-ink-300 line-through tabular-nums">{formatINR(product.mrp)}</span>
           )}
         </div>
-        {product.discount_percent > 0 && (
-          <span className="text-[11px] font-semibold text-forest-600">{product.discount_percent}% OFF</span>
-        )}
 
         <Link to={`/product/${product.slug}`}>
-          <h3 className="text-xs text-ink-500 line-clamp-2 leading-snug mt-1">{product.name}</h3>
+          <h3 className="text-[13px] font-semibold text-ink-500 line-clamp-2 leading-snug">{product.name}</h3>
         </Link>
-        <p className="text-[11px] text-ink-300">{product.unit}</p>
+        <p className="text-[12px] text-ink-300">{product.unit}</p>
 
         {product.rating_count > 0 && (
-          <div className="flex items-center gap-1 text-[11px] text-ink-300 mt-0.5">
-            <Star className="h-2.5 w-2.5 fill-forest-600 text-forest-600" />
-            <span className="font-mono">{product.rating_avg}</span>
+          <div className="flex items-center gap-1 text-[11px] text-ink-300">
+            <Star className="h-2.5 w-2.5 fill-[#0C831F] text-[#0C831F]" />
+            <span className="tabular-nums">{product.rating_avg}</span>
             <span>({product.rating_count})</span>
           </div>
         )}

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  /* One font everywhere (Zepto-style clean look). Change it here to re-skin every app. */
+  --zkart-font-family-name: "Plus Jakarta Sans";
+}
+
 @theme {
   /* Color system — zKart.shop brand: violet/purple gradient + deep navy-purple,
      sampled directly from the official logo. */
@@ -30,9 +35,9 @@
   --color-ink-200: #a49dbb;
   --color-ink-100: #ddd7ee;
 
-  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: var(--zkart-font-family-name), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: var(--zkart-font-family-name), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--zkart-font-family-name), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --radius-card: 1.1rem;
   --radius-pill: 999px;
@@ -46,6 +51,10 @@
 }
 
 @layer base {
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
   html {
     font-family: var(--font-body);
     -webkit-tap-highlight-color: transparent;

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Search, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -93,6 +94,7 @@ export function ContactMessagesPage() {
         ))}
         {data && messages.length === 0 && <p className="text-ink-300 text-center py-8">No messages.</p>}
       </div>
+      <Pager endpoint="/admin/contact-messages/" resetOn={[search, statusFilter]} />
     </div>
   )
 }

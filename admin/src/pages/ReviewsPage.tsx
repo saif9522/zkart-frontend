@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Search, Star, Trash2 } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -99,6 +100,7 @@ export function ReviewsPage() {
           </tbody>
         </table>
       </div>
+      <Pager endpoint="/admin/reviews/" resetOn={[search]} />
     </div>
   )
 }

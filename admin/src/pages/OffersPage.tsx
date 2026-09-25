@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp, ImagePlus, Package, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { adminApi } from '@/api/admin'
@@ -219,6 +220,7 @@ export function OffersPage() {
           </Button>
         </form>
       </Modal>
+      <Pager endpoint="/admin/offers/" />
     </div>
   )
 }
