@@ -19,7 +19,7 @@ export interface ImportJob {
 }
 
 import { api } from '@/api/client'
-import type { AdminHomeSection,
+import type { MediaSummary, AdminHomeSection,
   AdminBanner,
   AdminBlogPost,
   AdminContactMessage,
@@ -320,8 +320,18 @@ export const adminApi = {
   deleteExtraCharge: (id: string) => api.delete(`/admin/extra-charges/${id}/`),
 
   // Media library
-  mediaAssets: (search?: string) =>
-    api.get<Paginated<AdminMediaAsset>>('/admin/media-library/', { params: search ? { search } : {} }).then((r) => r.data),
+  mediaAssets: (search?: string, show?: '' | 'used' | 'unused' | 'missing') =>
+    api
+      .get<Paginated<AdminMediaAsset>>('/admin/media-library/', {
+        params: { ...(search ? { search } : {}), ...(show ? { show } : {}) },
+      })
+      .then((r) => r.data),
+  mediaSummary: () => api.get<MediaSummary>('/admin/media-library/summary/').then((r) => r.data),
+  makeMediaThumbnails: () => api.post('/admin/media-library/make-thumbnails/').then((r) => r.data),
+  bulkDeleteMedia: (payload: { ids?: string[]; all_missing?: boolean }) =>
+    api
+      .post<{ removed: number; files_deleted: number; kept_in_use: number }>('/admin/media-library/bulk-delete/', payload)
+      .then((r) => r.data),
   uploadMediaAsset: (file: File, altText: string) => {
     const form = new FormData()
     form.append('file', file)
@@ -346,6 +356,16 @@ export const adminApi = {
       no_image?: boolean
     } = {}
   ) => api.get<Paginated<Product>>('/admin/products/', { params }).then((r) => r.data),
+  matchMedia: (minScore = 0.6) =>
+    api
+      .post<{
+        products_without_photo: number
+        photos_checked: number
+        matches: { product_id: string; product_name: string; asset_id: string; asset_name: string; asset_url: string | null; score: number }[]
+      }>('/admin/products/match-media/', { min_score: minScore })
+      .then((r) => r.data),
+  attachMedia: (pairs: { product_id: string; asset_id: string }[]) =>
+    api.post<{ attached: number; skipped: number }>('/admin/products/attach-media/', { pairs }).then((r) => r.data),
   productStats: () => api.get<ProductStats>('/admin/products/stats/').then((r) => r.data),
   bulkProducts: (ids: string[], action: 'set_category' | 'available' | 'hidden' | 'featured' | 'unfeatured' | 'delete', category?: string) =>
     api.post<{ updated: number }>('/admin/products/bulk/', { ids, action, category }).then((r) => r.data),

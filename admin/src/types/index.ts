@@ -204,7 +204,19 @@ export interface AdminMediaAsset {
   uploaded_by_name: string | null
   file_size: number | null
   is_image: boolean
+  thumb?: string | null
+  is_missing?: boolean
+  used_in?: string[]
   created_at: string
+}
+
+export interface MediaSummary {
+  total: number
+  used: number
+  unused: number
+  missing: number
+  without_thumb: number
+  thumbs_job: { status: 'idle' | 'running' | 'done' | 'failed'; done: number; total: number; made: number; missing: number }
 }
 
 export interface AdminPaymentMethodConfig {
