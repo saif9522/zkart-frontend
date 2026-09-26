@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, ImagePlus, Layers, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { AdminImage } from '@/components/ui/AdminImage'
+import { MatchPhotosModal } from '@/components/MatchPhotosModal'
 import { ProductVariantsModal } from '@/components/ProductVariantsModal'
 import { adminApi } from '@/api/admin'
 import { apiErrorMessage } from '@/api/client'
@@ -34,6 +35,7 @@ export function ProductsPage() {
   const [bulkCategory, setBulkCategory] = useState('')
   const [bulkMsg, setBulkMsg] = useState('')
   const [uploadError, setUploadError] = useState('')
+  const [matchOpen, setMatchOpen] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350)
@@ -244,11 +246,15 @@ export function ProductsPage() {
             {importCsv.isPending ? 'Importing...' : 'Import CSV'}
             <input type="file" accept=".csv" onChange={handleImportFile} className="hidden" disabled={importCsv.isPending} />
           </label>
+          <Button size="sm" variant="outline" onClick={() => setMatchOpen(true)}>
+            Match photos
+          </Button>
           <Button size="sm" onClick={openCreate}>
             <Plus className="h-4 w-4" /> New product
           </Button>
         </div>
       </div>
+      <MatchPhotosModal open={matchOpen} onClose={() => setMatchOpen(false)} />
 
       {/* Stat cards — tap one to filter the list */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">

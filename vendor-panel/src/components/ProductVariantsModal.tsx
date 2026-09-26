@@ -56,10 +56,26 @@ export function ProductVariantsModal({
     onSuccess: invalidate,
   })
 
-  const uploadImage = useMutation({
-    mutationFn: (file: File) => vendorApi.addProductImage(productSlug, file, (detail?.images.length ?? 0) === 0),
-    onSuccess: invalidate,
-  })
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const [uploadError, setUploadError] = useState('')
+  const uploadMany = async (files: File[]) => {
+    setUploadError('')
+    setProgress({ done: 0, total: files.length })
+    let hasPrimary = (detail?.images.length ?? 0) > 0
+    for (let i = 0; i < files.length; i++) {
+      try {
+        // eslint-disable-next-line no-await-in-loop -- one photo per request, in order
+        await vendorApi.addProductImage(productSlug, files[i], !hasPrimary)
+        hasPrimary = true
+      } catch {
+        setUploadError(`"${files[i].name}" could not be uploaded — the others were saved.`)
+      }
+      setProgress({ done: i + 1, total: files.length })
+    }
+    setProgress(null)
+    invalidate()
+  }
+
   const removeImage = useMutation({
     mutationFn: (id: string) => vendorApi.removeProductImage(productSlug, id),
     onSuccess: invalidate,
@@ -95,18 +111,28 @@ export function ProductVariantsModal({
             ))}
           </div>
           <label className="inline-flex items-center gap-1.5 rounded-lg bg-rice-100 text-ink-400 text-sm px-3 py-2 cursor-pointer hover:bg-rice-200 w-fit">
-            <Plus className="h-3.5 w-3.5" /> {uploadImage.isPending ? 'Uploading...' : 'Add image'}
+            <Plus className="h-3.5 w-3.5" />
+            {progress ? `Uploading ${progress.done + 1 > progress.total ? progress.total : progress.done + 1} of ${progress.total}…` : 'Add photos (select many)'}
             <input
               type="file"
               accept="image/*"
+              multiple
+              disabled={!!progress}
               className="hidden"
               onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) uploadImage.mutate(file)
+                const files = Array.from(e.target.files ?? [])
+                if (files.length) void uploadMany(files)
                 e.target.value = ''
               }}
             />
           </label>
+          {progress && (
+            <div className="h-1.5 w-full max-w-xs rounded-full bg-rice-200 overflow-hidden">
+              <div className="h-full bg-forest-600 transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
+            </div>
+          )}
+          {uploadError && <p className="text-xs text-chili-600">{uploadError}</p>}
+          <p className="text-[11px] text-ink-300">Tip: pehli photo main photo banti hai. Photos apne-aap chhoti ho jaati hain, isliye upload tez hota hai.</p>
         </div>
       )}
 

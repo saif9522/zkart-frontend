@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/store/auth'
+import { compressFormData } from '@/lib/compressImage'
 import { endpointOf, usePaginationStore } from '@/store/pagination'
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
@@ -43,6 +44,14 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Photos are shrunk in the browser before upload (see lib/compressImage.ts) — much faster uploads.
+api.interceptors.request.use(async (config) => {
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    config.data = await compressFormData(config.data)
+  }
+  return config
+})
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken

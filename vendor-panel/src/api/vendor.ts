@@ -44,6 +44,24 @@ export const vendorApi = {
     api.patch<ProductDetail>(`/catalog/products/${slug}/`, payload).then((r) => r.data),
   deleteProduct: (slug: string) => api.delete(`/catalog/products/${slug}/`),
 
+  // Bulk upload (CSV)
+  importProductsCsv: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api
+      .post<{ created: number; updated: number; skipped: number; errors: string[] }>('/catalog/products/import-csv/', form)
+      .then((r) => r.data)
+  },
+  downloadProductsTemplate: async () => {
+    const r = await api.get('/catalog/products/csv-template/', { responseType: 'blob' })
+    const url = URL.createObjectURL(r.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'zkart-products-template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  },
+
   // Product images
   addProductImage: (slug: string, file: File, isPrimary = false) => {
     const form = new FormData()

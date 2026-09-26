@@ -2,6 +2,19 @@ declare const google: any
 
 let loadPromise: Promise<void> | null = null
 
+/**
+ * Google calls window.gm_authFailure when the key is wrong, the Maps API isn't
+ * enabled, billing is off, or the domain isn't allowed — and then just paints
+ * the map grey. We catch that so the app can switch to OpenStreetMap instead.
+ */
+export let googleAuthFailed = false
+if (typeof window !== 'undefined') {
+  ;(window as unknown as { gm_authFailure?: () => void }).gm_authFailure = () => {
+    googleAuthFailed = true
+    window.dispatchEvent(new Event('zkart:gmaps-auth-failed'))
+  }
+}
+
 export function loadGoogleMaps(): Promise<void> {
   if (typeof google !== 'undefined' && google?.maps) return Promise.resolve()
   if (loadPromise) return loadPromise

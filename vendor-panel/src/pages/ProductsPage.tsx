@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { BulkUploadModal } from '@/components/BulkUploadModal'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Layers, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { Layers, Pencil, Plus, Search, Trash2, Upload } from 'lucide-react'
 import { ProductVariantsModal } from '@/components/ProductVariantsModal'
 import { vendorApi } from '@/api/vendor'
 import { apiErrorMessage } from '@/api/client'
@@ -26,6 +27,7 @@ const emptyForm: ProductWritePayload = {
 }
 
 export function ProductsPage() {
+  const [bulkOpen, setBulkOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [editingSlug, setEditingSlug] = useState<string | null>(null)
@@ -107,12 +109,18 @@ export function ProductsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-xl font-bold text-ink-500">Your Products</h1>
-        <Button size="sm" onClick={startCreate}>
-          <Plus className="h-4 w-4" /> New product
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="secondary" onClick={() => setBulkOpen(true)}>
+            <Upload className="h-4 w-4" /> Bulk upload (CSV)
+          </Button>
+          <Button size="sm" onClick={startCreate}>
+            <Plus className="h-4 w-4" /> New product
+          </Button>
+        </div>
       </div>
+      <BulkUploadModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-300" />
