@@ -5,7 +5,8 @@ import { vendorApi } from '@/api/vendor'
 import { apiErrorMessage } from '@/api/client'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
-import { LocationPickerMap } from '@/components/ui/LocationPickerMap'
+import { ShopLocationFinder } from '@/components/ShopLocationFinder'
+import { inIndia } from '@/lib/inIndia'
 import type { BusinessType, ShopCategory } from '@/types'
 
 const CATEGORIES: { value: ShopCategory; label: string }[] = [
@@ -71,6 +72,10 @@ export function OnboardPage() {
     }
     if (step === 3 && !form.address_line) {
       setError('Shop address is required.')
+      return
+    }
+    if (step === 3 && !inIndia(Number(form.latitude), Number(form.longitude))) {
+      setError('Map pe dukaan ki sahi jagah chunein — abhi ki location India ke bahar hai.')
       return
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1))
@@ -172,14 +177,12 @@ export function OnboardPage() {
                 <Field label="Pincode" value={form.pincode} onChange={set('pincode')} />
                 <Field label="Country" value={form.country} onChange={set('country')} />
               </div>
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-ink-400">Shop location on map</span>
-                <LocationPickerMap
-                  latitude={Number(form.latitude)}
-                  longitude={Number(form.longitude)}
-                  onChange={(lat, lng) => setForm({ ...form, latitude: lat.toFixed(6), longitude: lng.toFixed(6) })}
-                />
-              </label>
+              <ShopLocationFinder
+                address={{ line: form.address_line, city: form.city, state: form.state, pincode: form.pincode }}
+                latitude={form.latitude}
+                longitude={form.longitude}
+                onChange={(lat, lng) => setForm((f) => ({ ...f, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Latitude" type="number" value={form.latitude} onChange={set('latitude')} required />
                 <Field label="Longitude" type="number" value={form.longitude} onChange={set('longitude')} required />
