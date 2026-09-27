@@ -36,6 +36,7 @@ export interface Category {
   parent: string | null
   icon: string | null
   display_order: number
+  show_on_home?: boolean
   subcategories?: Category[]
 }
 

@@ -72,6 +72,9 @@ export const adminApi = {
   vendors: (params: { status?: string; search?: string; page_size?: number } = {}) =>
     api.get<Paginated<AdminVendor>>('/admin/vendors/', { params }).then((r) => r.data),
   vendor: (id: string) => api.get<AdminVendor>(`/admin/vendors/${id}/`).then((r) => r.data),
+  createVendor: (payload: Record<string, unknown>) => api.post<AdminVendor>('/admin/vendors/', payload).then((r) => r.data),
+  updateVendor: (id: string, payload: Record<string, unknown>) =>
+    api.patch<AdminVendor>(`/admin/vendors/${id}/`, payload).then((r) => r.data),
   approveVendor: (id: string, notes?: string) =>
     api.post<AdminVendor>(`/admin/vendors/${id}/approve/`, { notes }).then((r) => r.data),
   suspendVendor: (id: string) => api.post<AdminVendor>(`/admin/vendors/${id}/suspend/`).then((r) => r.data),
@@ -90,6 +93,10 @@ export const adminApi = {
   deliveryPartners: (params: { status?: string } = {}) =>
     api.get<Paginated<AdminDeliveryPartner>>('/admin/delivery-partners/', { params }).then((r) => r.data),
   deliveryPartner: (id: string) => api.get<AdminDeliveryPartner>(`/admin/delivery-partners/${id}/`).then((r) => r.data),
+  createDeliveryPartner: (payload: Record<string, unknown>) =>
+    api.post<AdminDeliveryPartner>('/admin/delivery-partners/', payload).then((r) => r.data),
+  updateDeliveryPartner: (id: string, payload: Record<string, unknown>) =>
+    api.patch<AdminDeliveryPartner>(`/admin/delivery-partners/${id}/`, payload).then((r) => r.data),
   approveDeliveryPartner: (id: string, notes?: string) =>
     api.post<AdminDeliveryPartner>(`/admin/delivery-partners/${id}/approve/`, { notes }).then((r) => r.data),
   suspendDeliveryPartner: (id: string) =>
@@ -367,8 +374,12 @@ export const adminApi = {
   attachMedia: (pairs: { product_id: string; asset_id: string }[]) =>
     api.post<{ attached: number; skipped: number }>('/admin/products/attach-media/', { pairs }).then((r) => r.data),
   productStats: () => api.get<ProductStats>('/admin/products/stats/').then((r) => r.data),
-  bulkProducts: (ids: string[], action: 'set_category' | 'available' | 'hidden' | 'featured' | 'unfeatured' | 'delete', category?: string) =>
-    api.post<{ updated: number }>('/admin/products/bulk/', { ids, action, category }).then((r) => r.data),
+  bulkProducts: (
+    ids: string[],
+    action: 'set_category' | 'available' | 'hidden' | 'featured' | 'unfeatured' | 'delete' | 'set_stock' | 'out_of_stock',
+    category?: string,
+    quantity?: number
+  ) => api.post<{ updated: number }>('/admin/products/bulk/', { ids, action, category, quantity }).then((r) => r.data),
   createProduct: (payload: Partial<Product>) =>
     api.post<Product>('/admin/products/', payload).then((r) => r.data),
   getProduct: (id: string) => api.get<Product>(`/admin/products/${id}/`).then((r) => r.data),

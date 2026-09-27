@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Eye } from 'lucide-react'
+import { Eye, Pencil, Plus } from 'lucide-react'
+import { DeliveryFormModal } from '@/components/StaffForms'
 import { adminApi } from '@/api/admin'
+import { apiErrorMessage } from '@/api/client'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -25,6 +27,9 @@ const VERIFICATION_COLOR: Record<string, 'pending' | 'active' | 'failed' | 'appr
 }
 
 export function DeliveryPartnersPage() {
+  const [formOpen, setFormOpen] = useState(false)
+  const [formItem, setFormItem] = useState<AdminDeliveryPartner | null>(null)
+  const [actionError, setActionError] = useState('')
   const [status, setStatus] = useState<(typeof STATUS_TABS)[number]>('all')
   const [viewing, setViewing] = useState<AdminDeliveryPartner | null>(null)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -51,12 +56,13 @@ export function DeliveryPartnersPage() {
   const approve = useMutation({
     mutationFn: (id: string) => adminApi.approveDeliveryPartner(id),
     onSuccess: () => { invalidate(); refreshViewing() },
+    onError: (e) => setActionError(apiErrorMessage(e, 'Approve failed.')),
   })
   const markUnderReview = useMutation({
     mutationFn: (id: string) => adminApi.markDeliveryUnderReview(id),
     onSuccess: () => { invalidate(); refreshViewing() },
   })
-  const suspend = useMutation({ mutationFn: adminApi.suspendDeliveryPartner, onSuccess: invalidate })
+  const suspend = useMutation({ mutationFn: adminApi.suspendDeliveryPartner, onSuccess: invalidate, onError: (e) => setActionError(apiErrorMessage(e, 'Suspend failed.')) })
   const reject = useMutation({
     mutationFn: () => adminApi.rejectDeliveryPartner(viewing!.id, actionNotes),
     onSuccess: () => { invalidate(); refreshViewing(); setActionMode(null); setActionNotes('') },
@@ -78,7 +84,16 @@ export function DeliveryPartnersPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink-500">Delivery Partners</h1>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h1 className="text-xl font-bold text-ink-500">Delivery Partners</h1>
+        <Button size="sm" onClick={() => { setFormItem(null); setFormOpen(true) }}>
+          <Plus className="h-4 w-4" /> Add delivery partner
+        </Button>
+      </div>
+      <DeliveryFormModal open={formOpen} partner={formItem} onClose={() => setFormOpen(false)} />
+      {actionError && (
+        <p className="text-sm text-chili-600 bg-chili-100 rounded-lg px-3 py-2" onClick={() => setActionError('')}>{actionError}</p>
+      )}
 
       <div className="flex gap-2">
         {STATUS_TABS.map((tab) => (
@@ -127,11 +142,23 @@ export function DeliveryPartnersPage() {
                     <button onClick={() => openView(p)} className="text-ink-300 hover:text-forest-600" title="View full details">
                       <Eye className="h-4 w-4" />
                     </button>
-                    {p.status !== 'approved' && (
-                      <Button size="sm" onClick={() => approve.mutate(p.id)} loading={approve.isPending}>Approve</Button>
+                    <button onClick={() => { setFormItem(p); setFormOpen(true) }} className="text-ink-300 hover:text-forest-600" title="Edit">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    {(p.status !== 'approved' || p.verification_status !== 'approved') && (
+                      <Button size="sm" onClick={() => approve.mutate(p.id)} loading={approve.isPending && approve.variables === p.id}>
+                        {p.status === 'suspended' ? 'Reactivate' : 'Approve'}
+                      </Button>
                     )}
                     {p.status !== 'suspended' && (
-                      <Button size="sm" variant="danger" onClick={() => suspend.mutate(p.id)} loading={suspend.isPending}>Suspend</Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => window.confirm('Suspend? Ye login/orders nahi le paayenge.') && suspend.mutate(p.id)}
+                        loading={suspend.isPending && suspend.variables === p.id}
+                      >
+                        Suspend
+                      </Button>
                     )}
                   </div>
                 </td>

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Pager } from '@/components/ui/Pager'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Eye } from 'lucide-react'
+import { Eye, Pencil, Plus } from 'lucide-react'
+import { VendorFormModal } from '@/components/StaffForms'
 import { adminApi } from '@/api/admin'
+import { apiErrorMessage } from '@/api/client'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -25,6 +27,9 @@ const VERIFICATION_COLOR: Record<string, 'pending' | 'active' | 'failed' | 'appr
 }
 
 export function VendorsPage() {
+  const [formOpen, setFormOpen] = useState(false)
+  const [formItem, setFormItem] = useState<AdminVendor | null>(null)
+  const [actionError, setActionError] = useState('')
   const [status, setStatus] = useState<(typeof STATUS_TABS)[number]>('all')
   const [editingCommission, setEditingCommission] = useState<string | null>(null)
   const [commissionValue, setCommissionValue] = useState('')
@@ -53,12 +58,13 @@ export function VendorsPage() {
   const approve = useMutation({
     mutationFn: (id: string) => adminApi.approveVendor(id),
     onSuccess: () => { invalidate(); refreshViewing() },
+    onError: (e) => setActionError(apiErrorMessage(e, 'Approve failed.')),
   })
   const markUnderReview = useMutation({
     mutationFn: (id: string) => adminApi.markVendorUnderReview(id),
     onSuccess: () => { invalidate(); refreshViewing() },
   })
-  const suspend = useMutation({ mutationFn: adminApi.suspendVendor, onSuccess: invalidate })
+  const suspend = useMutation({ mutationFn: adminApi.suspendVendor, onSuccess: invalidate, onError: (e) => setActionError(apiErrorMessage(e, 'Suspend failed.')) })
   const reject = useMutation({
     mutationFn: () => adminApi.rejectVendor(viewing!.id, actionNotes),
     onSuccess: () => { invalidate(); refreshViewing(); setActionMode(null); setActionNotes('') },
@@ -89,7 +95,16 @@ export function VendorsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-ink-500">Vendors</h1>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h1 className="text-xl font-bold text-ink-500">Vendors</h1>
+        <Button size="sm" onClick={() => { setFormItem(null); setFormOpen(true) }}>
+          <Plus className="h-4 w-4" /> Add shop
+        </Button>
+      </div>
+      <VendorFormModal open={formOpen} vendor={formItem} onClose={() => setFormOpen(false)} />
+      {actionError && (
+        <p className="text-sm text-chili-600 bg-chili-100 rounded-lg px-3 py-2" onClick={() => setActionError('')}>{actionError}</p>
+      )}
 
       <div className="flex gap-2">
         {STATUS_TABS.map((tab) => (
@@ -159,11 +174,23 @@ export function VendorsPage() {
                     <button onClick={() => openView(v)} className="text-ink-300 hover:text-forest-600" title="View full details">
                       <Eye className="h-4 w-4" />
                     </button>
-                    {v.status !== 'approved' && (
-                      <Button size="sm" onClick={() => approve.mutate(v.id)} loading={approve.isPending}>Approve</Button>
+                    <button onClick={() => { setFormItem(v); setFormOpen(true) }} className="text-ink-300 hover:text-forest-600" title="Edit">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    {(v.status !== 'approved' || v.verification_status !== 'approved') && (
+                      <Button size="sm" onClick={() => approve.mutate(v.id)} loading={approve.isPending && approve.variables === v.id}>
+                        {v.status === 'suspended' ? 'Reactivate' : 'Approve'}
+                      </Button>
                     )}
                     {v.status !== 'suspended' && (
-                      <Button size="sm" variant="danger" onClick={() => suspend.mutate(v.id)} loading={suspend.isPending}>Suspend</Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => window.confirm('Suspend? Ye login/orders nahi le paayenge.') && suspend.mutate(v.id)}
+                        loading={suspend.isPending && suspend.variables === v.id}
+                      >
+                        Suspend
+                      </Button>
                     )}
                   </div>
                 </td>

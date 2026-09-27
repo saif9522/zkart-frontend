@@ -164,6 +164,9 @@ export interface Category {
   icon: string | null
   display_order: number
   is_active: boolean
+  show_on_home?: boolean
+  product_count?: number
+  parent_name?: string | null
 }
 
 export interface AdminReview {

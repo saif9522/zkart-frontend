@@ -168,7 +168,7 @@ function RowSkeleton() {
   )
 }
 
-type CategoryItem = { id: string; name: string; slug: string; icon?: string | null }
+type CategoryItem = { id: string; name: string; slug: string; icon?: string | null; show_on_home?: boolean }
 
 /**
  * Zepto-style "Shop by Category": big picture tiles in a grid, full names
@@ -177,7 +177,8 @@ type CategoryItem = { id: string; name: string; slug: string; icon?: string | nu
  */
 function CategoryGrid({ categories, loading }: { categories?: CategoryItem[]; loading: boolean }) {
   const [expanded, setExpanded] = useState(false)
-  const list = categories ?? []
+  // Admin → Categories → "On home" decides which ones appear here.
+  const list = (categories ?? []).filter((c) => c.show_on_home !== false)
   // collapsed: 8 on phones (2 rows of 4), 20 on desktop (2 rows of 10)
   const MOBILE = 8
   const DESKTOP = 20
