@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ChevronDown, ChevronRight, ShoppingBasket } from 'lucide-react'
+import { ChevronRight, ShoppingBasket } from 'lucide-react'
 import { catalogApi } from '@/api/catalog'
 import { marketingApi, type HomeSection } from '@/api/marketing'
 import { vendorsApi } from '@/api/vendors'
@@ -53,7 +53,7 @@ export function HomePage() {
     <div className="mx-auto max-w-6xl px-4">
       <AreaBanner />
       <HeroSlider />
-      <CategoryGrid categories={categories} loading={catLoading} />
+      <CategoryStrip categories={categories} loading={catLoading} />
       <NearbyStores />
 
       {dynamic ? (
@@ -173,69 +173,6 @@ function RowSkeleton() {
 
 type CategoryItem = { id: string; name: string; slug: string; icon?: string | null; show_on_home?: boolean }
 
-/**
- * Zepto-style "Shop by Category": big picture tiles in a grid, full names
- * (2 lines), 4 per row on phones → 10 on desktop. Collapsed to 2 rows until
- * "See All" is tapped.
- */
-function CategoryGrid({ categories, loading }: { categories?: CategoryItem[]; loading: boolean }) {
-  const [expanded, setExpanded] = useState(false)
-  // Admin → Categories → "On home" decides which ones appear here.
-  const list = (categories ?? []).filter((c) => c.show_on_home !== false)
-  // collapsed: 8 on phones (2 rows of 4), 20 on desktop (2 rows of 10)
-  const MOBILE = 8
-  const DESKTOP = 20
-  const hasMore = list.length > MOBILE
-
-  return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display text-lg sm:text-xl font-semibold text-ink-500">Shop by Category</h2>
-        {hasMore && (
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className={`flex items-center gap-0.5 text-xs sm:text-sm font-semibold text-chili-600 hover:text-chili-500 ${
-              list.length <= DESKTOP ? 'lg:hidden' : ''
-            }`}
-          >
-            {expanded ? 'Show less' : 'See All'}
-            {expanded ? <ChevronDown className="h-4 w-4 rotate-180" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-        )}
-      </div>
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-x-2.5 sm:gap-x-3 gap-y-4">
-        {loading
-          ? Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-2">
-                <div className="aspect-square rounded-2xl bg-ink-100/50 animate-pulse" />
-                <div className="h-3 w-3/4 mx-auto rounded bg-ink-100/50 animate-pulse" />
-              </div>
-            ))
-          : list.map((cat, i) => {
-              const hiddenWhenCollapsed = !expanded && (i >= DESKTOP ? 'hidden' : i >= MOBILE ? 'hidden lg:flex' : '')
-              return (
-                <Link
-                  key={cat.id}
-                  to={`/search?category=${cat.slug}`}
-                  className={`group flex flex-col items-center gap-1.5 ${hiddenWhenCollapsed || ''}`}
-                >
-                  <div className="w-full aspect-square rounded-2xl bg-[#F4F0FF] flex items-center justify-center overflow-hidden transition-transform group-hover:scale-[1.03]">
-                    {cat.icon ? (
-                      <SafeImage src={cat.icon} alt={cat.name} className="object-contain p-1" iconClassName="h-8 w-8 text-forest-600/60" />
-                    ) : (
-                      <ShoppingBasket className="h-8 w-8 text-forest-600/60" />
-                    )}
-                  </div>
-                  <span className="text-[11px] sm:text-[13px] font-medium text-ink-500 text-center leading-snug line-clamp-2 break-words w-full">
-                    {cat.name}
-                  </span>
-                </Link>
-              )
-            })}
-      </div>
-    </section>
-  )
-}
 
 /** Zepto-style notice when no branch delivers to the chosen location (products stay visible). */
 function AreaBanner() {
@@ -258,5 +195,105 @@ function AreaBanner() {
         </p>
       </div>
     </div>
+  )
+}
+
+/**
+ * Zepto-style category strip: ALL categories in ONE swipeable line. Tapping a
+ * category shows its products right underneath (no page change); "See all"
+ * opens the full category page.
+ */
+function CategoryStrip({ categories, loading }: { categories?: CategoryItem[]; loading: boolean }) {
+  const list = (categories ?? []).filter((c) => c.show_on_home !== false)
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const active = list.find((c) => c.id === activeId) ?? list[0]
+  const trackRef = useRef<HTMLDivElement>(null)
+  // same query key as the page's feed → shared cache, no extra request
+  const { data: feed, isLoading: feedLoading } = useQuery({ queryKey: ['home-feed'], queryFn: catalogApi.homeFeed })
+  const products = feed?.find((f) => f.id === active?.id || f.slug === active?.slug)?.products ?? []
+
+  const scroll = (dir: 1 | -1) => trackRef.current?.scrollBy({ left: dir * trackRef.current.clientWidth * 0.8, behavior: 'smooth' })
+
+  return (
+    <section className="mt-6">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-display text-lg sm:text-xl font-semibold text-ink-500">Shop by Category</h2>
+        <div className="hidden sm:flex gap-2">
+          <button onClick={() => scroll(-1)} className="h-8 w-8 rounded-full border border-ink-100 bg-white flex items-center justify-center hover:border-forest-400" aria-label="Scroll categories left">
+            <ChevronRight className="h-4 w-4 rotate-180" />
+          </button>
+          <button onClick={() => scroll(1)} className="h-8 w-8 rounded-full border border-ink-100 bg-white flex items-center justify-center hover:border-forest-400" aria-label="Scroll categories right">
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* one line, swipe sideways */}
+      <div ref={trackRef} className="flex gap-1 sm:gap-2 overflow-x-auto scrollbar-none border-b border-ink-100 snap-x">
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="w-20 sm:w-24 shrink-0 flex flex-col items-center gap-2 pb-3">
+                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-ink-100/50 animate-pulse" />
+                <div className="h-3 w-12 rounded bg-ink-100/50 animate-pulse" />
+              </div>
+            ))
+          : list.map((cat) => {
+              const isActive = cat.id === active?.id
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveId(cat.id)}
+                  className="relative w-20 sm:w-24 shrink-0 snap-start flex flex-col items-center gap-1.5 pt-1 pb-3 group"
+                  aria-pressed={isActive}
+                >
+                  <span
+                    className={`h-14 w-14 sm:h-16 sm:w-16 rounded-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 ${
+                      isActive ? 'bg-forest-50 ring-2 ring-forest-600/40' : 'bg-[#F4F0FF]'
+                    }`}
+                  >
+                    {cat.icon ? (
+                      <SafeImage src={cat.icon} alt={cat.name} className="object-contain p-1" iconClassName="h-7 w-7 text-forest-600/60" />
+                    ) : (
+                      <ShoppingBasket className="h-7 w-7 text-forest-600/60" />
+                    )}
+                  </span>
+                  <span className={`text-[11px] sm:text-xs text-center leading-snug line-clamp-2 px-0.5 ${isActive ? 'font-bold text-ink-500' : 'font-medium text-ink-400'}`}>
+                    {cat.name}
+                  </span>
+                  {isActive && <span className="absolute bottom-0 left-3 right-3 h-[3px] rounded-t-full bg-ink-500" />}
+                </button>
+              )
+            })}
+      </div>
+
+      {/* products of the selected category */}
+      {active && (
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-ink-500">{active.name}</p>
+            <Link to={`/search?category=${active.slug}`} className="flex items-center gap-0.5 text-xs sm:text-sm font-semibold text-chili-600">
+              See All <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+          {feedLoading ? (
+            <div className="flex gap-3 overflow-hidden">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="w-36 sm:w-40 shrink-0 aspect-[3/4.2] rounded-xl bg-ink-100/40 animate-pulse" />
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2">
+              {products.map((p) => (
+                <div key={p.id} className="w-36 sm:w-40 shrink-0">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ink-300 py-6 text-center">Is category mein products jald aa rahe hain.</p>
+          )}
+        </div>
+      )}
+    </section>
   )
 }
