@@ -17,6 +17,12 @@ const KINDS: { value: HomeSectionKind; label: string; help: string; products: bo
   { value: 'top_deals', label: 'Top deals', help: 'Biggest % discount first — automatic.', products: true },
   { value: 'category', label: 'One category', help: 'Products from a category you choose (sub-categories included).', products: true },
   { value: 'manual', label: 'Hand-picked', help: 'You choose exactly which products, in which order.', products: true },
+  {
+    value: 'price_zones',
+    label: 'Price zones (₹5 / ₹10 / ₹15)',
+    help: 'Zepto jaisa: tabs ₹5 Zone, ₹10 Zone… Har tab mein us daam tak ke (stock wale) products. Chahein to ek category tak seemit karein.',
+    products: true,
+  },
   { value: 'offers', label: 'Offers block', help: 'Shows your offer sections & offer cards (managed in Offers) at this spot.', products: false },
   { value: 'category_rows', label: 'Row per category', help: 'One product row for every category, at this spot.', products: false },
 ]
@@ -30,6 +36,7 @@ const emptyForm = {
   kind: 'manual' as HomeSectionKind,
   category: '',
   product_limit: '12',
+  price_points: '5, 10, 15',
   bg_color: '',
   is_active: true,
 }
@@ -53,7 +60,8 @@ export function HomeSectionsPage() {
         title: form.title.trim(),
         subtitle: form.subtitle.trim(),
         kind: form.kind,
-        category: form.kind === 'category' ? form.category || null : null,
+        category: form.kind === 'category' || form.kind === 'price_zones' ? form.category || null : null,
+        price_points: form.kind === 'price_zones' ? form.price_points : '',
         product_limit: Number(form.product_limit) || 12,
         bg_color: form.bg_color,
         is_active: form.is_active,
@@ -111,6 +119,7 @@ export function HomeSectionsPage() {
       kind: s.kind,
       category: s.category ?? '',
       product_limit: String(s.product_limit),
+      price_points: s.price_points || '5, 10, 15',
       bg_color: s.bg_color || '',
       is_active: s.is_active,
     })
@@ -165,6 +174,7 @@ export function HomeSectionsPage() {
                 <p className="text-xs text-ink-400 truncate">
                   <span className="font-semibold text-forest-700">{info.label}</span>
                   {s.kind === 'category' && s.category_name && ` · ${s.category_name}`}
+                  {s.kind === 'price_zones' && ` · ₹${(s.price_points || '').replace(/\s*,\s*/g, ' / ₹')}${s.category_name ? ` · ${s.category_name}` : ''}`}
                   {s.kind === 'manual' && ` · ${s.products.length} product${s.products.length === 1 ? '' : 's'}`}
                   {info.products && s.kind !== 'manual' && ` · up to ${s.product_limit}`}
                   {s.subtitle && ` · “${s.subtitle}”`}
@@ -227,15 +237,23 @@ export function HomeSectionsPage() {
             <span className="text-[11px] text-ink-300">{kindInfo(form.kind).help}</span>
           </label>
 
-          {form.kind === 'category' && (
+          {form.kind === 'price_zones' && (
+            <Field
+              label="Zones — daam comma se (jaise 5, 10, 15)"
+              value={form.price_points}
+              onChange={(e) => setForm({ ...form, price_points: e.target.value })}
+              placeholder="5, 10, 15"
+            />
+          )}
+          {(form.kind === 'category' || form.kind === 'price_zones') && (
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ink-400">Category</span>
+              <span className="text-xs font-semibold text-ink-400">{form.kind === 'price_zones' ? 'Category (optional — khaali = saare products)' : 'Category'}</span>
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="rounded-lg border border-ink-100 bg-rice-100 px-3 py-2 text-sm outline-none focus:border-forest-400"
               >
-                <option value="">— Select category —</option>
+                <option value="">{form.kind === 'price_zones' ? '— All categories —' : '— Select category —'}</option>
                 {categoriesData?.results.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}

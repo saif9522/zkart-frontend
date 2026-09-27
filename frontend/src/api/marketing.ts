@@ -38,11 +38,13 @@ export interface HomeSection {
   id: string
   title: string
   subtitle: string
-  kind: 'featured' | 'recommended' | 'new_arrivals' | 'best_sellers' | 'top_deals' | 'category' | 'manual' | 'offers' | 'category_rows'
+  kind: 'featured' | 'recommended' | 'new_arrivals' | 'best_sellers' | 'top_deals' | 'category' | 'manual' | 'offers' | 'category_rows' | 'price_zones'
   bg_color: string
   category_slug: string | null
   display_order: number
   products: ProductListItem[]
+  /** price_zones only: ₹5 Zone / ₹10 Zone … */
+  tabs?: { label: string; max_price: string; products: ProductListItem[] }[]
 }
 
 /** Works whether the API returns a plain list or a paginated {results} object. */

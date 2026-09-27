@@ -70,6 +70,8 @@ export function HomePage() {
               )
             if (section.kind === 'category_rows')
               return <CategoryRows key={section.id} feed={feed} loading={feedLoading} />
+            if (section.kind === 'price_zones')
+              return (section.tabs ?? []).some((t) => t.products.length) ? <PriceZoneSection key={section.id} section={section} /> : null
             if (section.products.length === 0) return null
             return <SectionRow key={section.id} section={section} />
           })
@@ -294,6 +296,60 @@ function CategoryStrip({ categories, loading }: { categories?: CategoryItem[]; l
           )}
         </div>
       )}
+    </section>
+  )
+}
+
+/**
+ * Zepto "FRESH @₹5" style: big title, tabs ₹5 Zone / ₹10 Zone / ₹15 Zone,
+ * products up to that price below. Built in Admin → Homepage Sections.
+ */
+function PriceZoneSection({ section }: { section: HomeSection }) {
+  const tabs = (section.tabs ?? []).filter((t) => t.products.length > 0)
+  const [active, setActive] = useState(0)
+  const tab = tabs[Math.min(active, tabs.length - 1)]
+  const bg = /^#[0-9a-f]{6}$/i.test(section.bg_color || '') ? section.bg_color : '#FFF1F4'
+  if (!tab) return null
+  return (
+    <section className="mt-8 rounded-2xl p-3 sm:p-4" style={{ backgroundColor: bg }} aria-label={section.title}>
+      <h2 className="font-display text-xl sm:text-2xl font-extrabold text-forest-700 tracking-tight">{section.title}</h2>
+      {section.subtitle && <p className="text-xs sm:text-sm text-ink-400 mt-0.5">{section.subtitle}</p>}
+
+      <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none border-b border-ink-100">
+        {tabs.map((t, i) => {
+          const on = i === active
+          return (
+            <button key={t.label} onClick={() => setActive(i)} className="relative shrink-0 flex flex-col items-center gap-1 px-2 pb-2.5" aria-pressed={on}>
+              <span
+                className={`h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center text-rice-50 font-extrabold text-sm sm:text-base transition-transform ${on ? 'scale-105' : 'opacity-80'}`}
+                style={{
+                  background: '#E0284F',
+                  clipPath:
+                    'polygon(50% 0%, 61% 11%, 75% 7%, 79% 21%, 93% 25%, 89% 39%, 100% 50%, 89% 61%, 93% 75%, 79% 79%, 75% 93%, 61% 89%, 50% 100%, 39% 89%, 25% 93%, 21% 79%, 7% 75%, 11% 61%, 0% 50%, 11% 39%, 7% 25%, 21% 21%, 25% 7%, 39% 11%)',
+                }}
+              >
+                {t.label.replace(' Zone', '')}
+              </span>
+              <span className={`text-[11px] sm:text-xs ${on ? 'font-bold text-ink-500' : 'font-medium text-ink-400'}`}>{t.label}</span>
+              {on && <span className="absolute bottom-0 left-2 right-2 h-[3px] rounded-t-full bg-ink-500" />}
+            </button>
+          )
+        })}
+        <Link
+          to={`/search?max_price=${tab.max_price}${section.category_slug ? `&category=${section.category_slug}` : ''}`}
+          className="ml-auto self-center shrink-0 flex items-center gap-0.5 text-xs sm:text-sm font-semibold text-chili-600 pb-2"
+        >
+          See All <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <div className="mt-3 flex gap-3 overflow-x-auto scrollbar-none pb-1">
+        {tab.products.map((p) => (
+          <div key={p.id} className="w-36 sm:w-40 shrink-0">
+            <ProductCard product={p} />
+          </div>
+        ))}
+      </div>
     </section>
   )
 }

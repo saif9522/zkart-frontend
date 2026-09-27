@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { loadGoogleMaps } from '@/lib/googleMaps'
+import { googleAuthFailed, loadGoogleMaps } from '@/lib/googleMaps'
+import { OsmPickerMap } from '@/components/ui/OsmPickerMap'
 
 declare const google: any
 
@@ -7,30 +8,37 @@ interface LocationPickerMapProps {
   latitude: number
   longitude: number
   onChange: (lat: number, lng: number) => void
+  /** (kept for compatibility — the map now falls back to OpenStreetMap instead of showing text) */
+  unavailableText?: string
 }
 
 export function LocationPickerMap({ latitude, longitude, onChange }: LocationPickerMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<any>(null)
   const markerInstance = useRef<any>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
+  // 'osm' = free OpenStreetMap fallback (no key / Google refused the key / couldn't load)
+  const [status, setStatus] = useState<'loading' | 'ready' | 'osm'>(googleAuthFailed ? 'osm' : 'loading')
 
   useEffect(() => {
     let cancelled = false
+    const onAuthFail = () => !cancelled && setStatus('osm')
+    window.addEventListener('zkart:gmaps-auth-failed', onAuthFail)
     loadGoogleMaps()
       .then(() => {
-        if (!cancelled) setStatus('ready')
+        if (!cancelled) setStatus(googleAuthFailed ? 'osm' : 'ready')
       })
       .catch(() => {
-        if (!cancelled) setStatus('unavailable')
+        if (!cancelled) setStatus('osm')
       })
     return () => {
       cancelled = true
+      window.removeEventListener('zkart:gmaps-auth-failed', onAuthFail)
     }
   }, [])
 
   useEffect(() => {
     if (status !== 'ready' || !mapRef.current || mapInstance.current) return
+    if (googleAuthFailed) return setStatus('osm')
 
     const center = { lat: latitude, lng: longitude }
     const map = new google.maps.Map(mapRef.current, {
@@ -67,11 +75,12 @@ export function LocationPickerMap({ latitude, longitude, onChange }: LocationPic
     }
   }, [latitude, longitude])
 
-  if (status === 'unavailable') {
+  if (status === 'osm') {
     return (
-      <p className="text-xs text-ink-300 rounded-lg border border-dashed border-ink-100 px-3 py-4 text-center">
-        Map unavailable (no Google Maps API key configured) — enter latitude/longitude manually below.
-      </p>
+      <div className="flex flex-col gap-1.5">
+        <OsmPickerMap latitude={latitude} longitude={longitude} onChange={onChange} />
+        <p className="text-[11px] text-ink-300">Tap the map or drag the pin to set your exact location.</p>
+      </div>
     )
   }
 

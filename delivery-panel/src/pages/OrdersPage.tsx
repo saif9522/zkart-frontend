@@ -6,6 +6,7 @@ import { apiErrorMessage } from '@/api/client'
 import { useLocationSharing } from '@/hooks/useLocationSharing'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { RouteMap } from '@/components/RouteMap'
 import type { MyDeliveryOrder, OrderStatus } from '@/types'
 
 /** Opens Google Maps turn-by-turn (app on Android/iOS, website on desktop). */
@@ -109,6 +110,12 @@ export function OrdersPage() {
             <p className="font-mono text-xl font-bold text-ink-500">₹{order.grand_total}</p>
           </div>
         )}
+        <RouteMap
+          shop={{ lat: order.vendor_latitude, lng: order.vendor_longitude }}
+          customer={{ lat: order.customer_latitude, lng: order.customer_longitude }}
+          rider={locationSharing.lastPosition}
+          goingToShop={goingToShop}
+        />
         <a
           href={
             goingToShop

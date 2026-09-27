@@ -340,7 +340,7 @@ export interface AdminOffer {
 
 export type HomeSectionKind =
   | 'featured' | 'recommended' | 'new_arrivals' | 'best_sellers' | 'top_deals'
-  | 'category' | 'manual' | 'offers' | 'category_rows'
+  | 'category' | 'manual' | 'offers' | 'category_rows' | 'price_zones'
 
 export interface AdminHomeSection {
   id: string
@@ -351,6 +351,7 @@ export interface AdminHomeSection {
   category: string | null
   category_name: string | null
   product_limit: number
+  price_points?: string
   bg_color: string
   display_order: number
   is_active: boolean

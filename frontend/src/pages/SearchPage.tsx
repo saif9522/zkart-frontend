@@ -20,10 +20,17 @@ export function SearchPage() {
   const q = params.get('q') || ''
   const category = params.get('category') || ''
   const ordering = params.get('ordering') || ''
+  const maxPrice = params.get('max_price') || ''
 
   const { data, isLoading } = useQuery({
-    queryKey: ['products', 'search', q, category, ordering],
-    queryFn: () => catalogApi.products({ search: q || undefined, category: category || undefined, ordering: ordering || undefined }),
+    queryKey: ['products', 'search', q, category, ordering, maxPrice],
+    queryFn: () =>
+      catalogApi.products({
+        search: q || undefined,
+        category: category || undefined,
+        ordering: ordering || undefined,
+        max_price: maxPrice ? Number(maxPrice) : undefined,
+      }),
   })
 
   const setParam = (key: string, value: string) => {
@@ -72,6 +79,14 @@ export function SearchPage() {
         </div>
       )}
 
+      {maxPrice && (
+        <button
+          onClick={() => setParam('max_price', '')}
+          className="mb-4 mr-2 inline-flex items-center gap-1 text-xs bg-chili-100 text-chili-600 rounded-full px-3 py-1.5"
+        >
+          Up to ₹{maxPrice} <X className="h-3 w-3" />
+        </button>
+      )}
       {category && (
         <button
           onClick={() => setParam('category', '')}
