@@ -130,7 +130,16 @@ export function CheckoutPage() {
   // subtotal + per-shop delivery + admin extra charges + payment fee − coupon.
   const selectedMethod = paymentMethods?.find((m) => m.code === paymentMethod)
   const paymentFee = Number(selectedMethod?.extra_fee ?? 0)
-  const extraChargeRows = (deliveryEstimate ?? []).flatMap((e) => e.extra_charges ?? [])
+  const extraChargeRows = Object.values(
+    (deliveryEstimate ?? [])
+      .flatMap((e) => e.extra_charges ?? [])
+      .reduce<Record<string, { code: string; label: string; amount: number }>>((acc, row) => {
+        const key = row.label
+        acc[key] = { code: row.code, label: row.label, amount: (acc[key]?.amount ?? 0) + Number(row.amount) }
+        return acc
+      }, {})
+  )
+  const deliveryEstimateTotal = (deliveryEstimate ?? []).reduce((acc, e) => acc + Number(e.delivery_charge ?? 0), 0)
   const deliveryTotal =
     deliveryEstimate && deliveryEstimate.length > 0
       ? deliveryEstimate.reduce((acc, e) => acc + Number(e.delivery_charge ?? 0), 0)
@@ -314,24 +323,21 @@ export function CheckoutPage() {
           <span>Subtotal</span>
           <span className="font-mono">{formatINR(cart.subtotal)}</span>
         </div>
-        {deliveryEstimate && deliveryEstimate.length > 0 ? (
-          deliveryEstimate.map((e) => (
-            <div key={e.vendor_id} className="flex justify-between text-sm text-ink-400">
-              <span>
-                Delivery — {e.vendor_name}
-                {e.distance_km !== null && <span className="text-xs text-ink-300"> ({e.distance_km} km)</span>}
-              </span>
-              <span className="font-mono">
-                {e.error ? '—' : Number(e.delivery_charge) === 0 ? 'FREE' : formatINR(e.delivery_charge!)}
-              </span>
-            </div>
-          ))
-        ) : (
-          <div className="flex justify-between text-sm text-ink-400">
-            <span>Delivery</span>
-            <span className="font-mono">{cart.delivery_charge === 0 ? 'FREE' : formatINR(cart.delivery_charge)}</span>
-          </div>
-        )}
+        {/* One delivery line for the whole order — no shop names / distances */}
+        <div className="flex justify-between text-sm text-ink-400">
+          <span>Delivery charge</span>
+          <span className="font-mono">
+            {deliveryEstimate && deliveryEstimate.length > 0
+              ? deliveryEstimate.some((e) => e.error)
+                ? '—'
+                : deliveryEstimateTotal === 0
+                  ? 'FREE'
+                  : formatINR(deliveryEstimateTotal)
+              : cart.delivery_charge === 0
+                ? 'FREE'
+                : formatINR(cart.delivery_charge)}
+          </span>
+        </div>
         {extraChargeRows.map((row, i) => (
           <div key={`${row.code}-${i}`} className="flex justify-between text-sm text-ink-400">
             <span>{row.label}</span>

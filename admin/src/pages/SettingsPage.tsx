@@ -16,6 +16,7 @@ export function SettingsPage() {
     delivery_free_km: '',
     delivery_per_km_charge: '',
     max_delivery_radius_km: '',
+    serviceable_pincodes: '',
     rider_payout_base: '',
     rider_payout_per_km: '',
     maintenance_mode: false,
@@ -32,6 +33,7 @@ export function SettingsPage() {
         delivery_free_km: data.delivery_free_km,
         delivery_per_km_charge: data.delivery_per_km_charge,
         max_delivery_radius_km: data.max_delivery_radius_km,
+        serviceable_pincodes: data.serviceable_pincodes ?? '',
         rider_payout_base: data.rider_payout_base,
         rider_payout_per_km: data.rider_payout_per_km,
         maintenance_mode: data.maintenance_mode,
@@ -118,6 +120,17 @@ export function SettingsPage() {
           value={form.max_delivery_radius_km}
           onChange={(e) => setForm({ ...form, max_delivery_radius_km: e.target.value })}
         />
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold text-ink-400">Delivery pincodes (comma se alag, khaali = sab pincodes)</span>
+          <textarea
+            rows={2}
+            value={form.serviceable_pincodes}
+            onChange={(e) => setForm({ ...form, serviceable_pincodes: e.target.value })}
+            placeholder="822114, 822101"
+            className="rounded-lg border border-ink-100 bg-rice-100 px-3 py-2 text-sm outline-none focus:border-forest-400 font-mono"
+          />
+          <span className="text-[11px] text-ink-300">In pincodes ke bahar ke address pe order nahi hoga. Doori ki seema (upar) bhi saath mein lagti hai.</span>
+        </label>
 
         <h2 className="text-sm font-semibold text-ink-500 pt-2 border-t border-ink-100">Delivery partner payout (rider earns)</h2>
         <div className="grid grid-cols-2 gap-3">

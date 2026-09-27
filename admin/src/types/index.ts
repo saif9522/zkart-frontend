@@ -35,6 +35,7 @@ export interface DashboardStats {
 export type VerificationStatus = 'documents_submitted' | 'under_review' | 'approved' | 'rejected' | 'resubmission_required'
 
 export interface AdminVendor {
+  location_ok?: boolean
   id: string
   shop_name: string
   business_name: string
@@ -444,6 +445,7 @@ export interface PlatformSettings {
   delivery_free_km: string
   delivery_per_km_charge: string
   max_delivery_radius_km: string
+  serviceable_pincodes?: string
   rider_payout_base: string
   rider_payout_per_km: string
   maintenance_mode: boolean

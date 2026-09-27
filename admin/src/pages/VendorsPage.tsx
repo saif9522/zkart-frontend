@@ -139,7 +139,14 @@ export function VendorsPage() {
             )}
             {data?.results.map((v) => (
               <tr key={v.id} className="border-b border-ink-100/60 last:border-0">
-                <td className="px-4 py-3 font-medium text-ink-500">{v.shop_name}</td>
+                <td className="px-4 py-3 font-medium text-ink-500">
+                  {v.shop_name}
+                  {v.location_ok === false && (
+                    <span className="block text-[11px] font-semibold text-chili-600" title="Latitude/longitude India ke bahar — Edit karke sahi karein">
+                      ⚠ Location galat — edit karein
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-ink-400">
                   <div>{v.owner_name}</div>
                   <div className="text-xs font-mono text-ink-300">{v.owner_phone}</div>
