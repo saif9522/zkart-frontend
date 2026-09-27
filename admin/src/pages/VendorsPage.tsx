@@ -141,6 +141,8 @@ export function VendorsPage() {
               <tr key={v.id} className="border-b border-ink-100/60 last:border-0">
                 <td className="px-4 py-3 font-medium text-ink-500">
                   {v.shop_name}
+                  {v.branch_code && <span className="ml-1.5 text-[11px] font-mono text-forest-700 bg-forest-50 rounded px-1.5 py-0.5">#{v.branch_code}</span>}
+                  {v.service_pincodes && <span className="block text-[11px] text-ink-300 font-normal">Pincodes: {v.service_pincodes}</span>}
                   {v.location_ok === false && (
                     <span className="block text-[11px] font-semibold text-chili-600" title="Latitude/longitude India ke bahar — Edit karke sahi karein">
                       ⚠ Location galat — edit karein

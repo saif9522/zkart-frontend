@@ -35,6 +35,8 @@ export interface DashboardStats {
 export type VerificationStatus = 'documents_submitted' | 'under_review' | 'approved' | 'rejected' | 'resubmission_required'
 
 export interface AdminVendor {
+  branch_code?: string
+  service_pincodes?: string
   location_ok?: boolean
   id: string
   shop_name: string

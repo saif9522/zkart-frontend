@@ -64,6 +64,7 @@ export interface ProductListItem {
   selling_price: string
   discount_percent: number
   primary_image: string | null
+  vendor_id?: string
   vendor_name: string
   /** false → shop is closed: product stays visible, ordering is paused */
   vendor_is_open?: boolean

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MapPin, Plus, Tag, X } from 'lucide-react'
 import { addressApi } from '@/api/addresses'
+import { vendorsApi } from '@/api/vendors'
 import { ordersApi } from '@/api/orders'
 import { walletApi } from '@/api/wallet'
 import { apiErrorMessage } from '@/api/client'
@@ -21,7 +22,7 @@ declare global {
 export function CheckoutPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { cart } = useCart()
+  const { cart, removeItem } = useCart()
 
   const { data: addresses } = useQuery({ queryKey: ['addresses'], queryFn: addressApi.list })
   const [selectedAddress, setSelectedAddress] = useState<string>('')
@@ -64,6 +65,29 @@ export function CheckoutPage() {
     enabled: !!activeAddressId,
   })
   const outOfRangeVendor = deliveryEstimate?.find((e) => e.error)
+  // Branches that can't deliver to this address ("Not here") → their items
+  const notHereVendorIds = new Set((deliveryEstimate ?? []).filter((e) => e.error?.startsWith('Not here')).map((e) => e.vendor_id))
+  const notHereItems = (cart?.items ?? []).filter((i) => i.product.vendor_id && notHereVendorIds.has(i.product.vendor_id))
+  const activeAddress = currentAddresses.find((a) => a.id === activeAddressId)
+  const { data: area } = useQuery({
+    queryKey: ['serviceability', activeAddress?.id, activeAddress?.pincode, activeAddress?.latitude, activeAddress?.longitude],
+    queryFn: () =>
+      vendorsApi.serviceability({ lat: activeAddress!.latitude, lng: activeAddress!.longitude, pincode: activeAddress!.pincode }),
+    enabled: !!activeAddress,
+  })
+  const [removingNotHere, setRemovingNotHere] = useState(false)
+  const removeNotHere = async () => {
+    setRemovingNotHere(true)
+    try {
+      for (const item of notHereItems) {
+        // eslint-disable-next-line no-await-in-loop -- few items, keep it simple
+        await removeItem.mutateAsync(item.id)
+      }
+    } finally {
+      setRemovingNotHere(false)
+      queryClient.invalidateQueries({ queryKey: ['delivery-estimate'] })
+    }
+  }
   const closedShops = [
     ...new Set((cart?.items ?? []).filter((i) => i.product.vendor_is_open === false).map((i) => i.product.vendor_name)),
   ]
@@ -362,8 +386,30 @@ export function CheckoutPage() {
         </div>
       </section>
 
-      {outOfRangeVendor && (
-        <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-4 text-sm">{outOfRangeVendor.error}</div>
+      {area && !area.available ? (
+        <div className="rounded-xl bg-mango-50 border border-mango-300 p-4 mb-4 text-center">
+          <p className="text-2xl mb-1">🛵</p>
+          <p className="font-semibold text-ink-500">{area.message || 'Hum abhi aapke area mein nahi hain. Jald aa rahe hain!'}</p>
+          <p className="text-xs text-ink-400 mt-1">Doosra address chunein ya naya address jodein.</p>
+        </div>
+      ) : notHereItems.length > 0 ? (
+        <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-4 text-sm">
+          <p className="font-semibold">Not here — ye items is address pe deliver nahi ho sakte:</p>
+          <ul className="list-disc pl-5 my-1.5 text-ink-500">
+            {notHereItems.map((i) => (
+              <li key={i.id}>{i.product.name}</li>
+            ))}
+          </ul>
+          <button
+            onClick={removeNotHere}
+            disabled={removingNotHere}
+            className="mt-1 rounded-lg bg-chili-600 text-rice-50 text-xs font-semibold px-3 py-1.5 disabled:opacity-60"
+          >
+            {removingNotHere ? 'Hata rahe hain…' : 'Inhe hatao aur baaki order karo'}
+          </button>
+        </div>
+      ) : (
+        outOfRangeVendor && <div className="rounded-xl bg-chili-100 text-chili-600 p-3 mb-4 text-sm">{outOfRangeVendor.error}</div>
       )}
 
       {closedShops.length > 0 && (

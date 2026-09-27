@@ -120,17 +120,10 @@ export function SettingsPage() {
           value={form.max_delivery_radius_km}
           onChange={(e) => setForm({ ...form, max_delivery_radius_km: e.target.value })}
         />
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-ink-400">Delivery pincodes (comma se alag, khaali = sab pincodes)</span>
-          <textarea
-            rows={2}
-            value={form.serviceable_pincodes}
-            onChange={(e) => setForm({ ...form, serviceable_pincodes: e.target.value })}
-            placeholder="822114, 822101"
-            className="rounded-lg border border-ink-100 bg-rice-100 px-3 py-2 text-sm outline-none focus:border-forest-400 font-mono"
-          />
-          <span className="text-[11px] text-ink-300">In pincodes ke bahar ke address pe order nahi hoga. Doori ki seema (upar) bhi saath mein lagti hai.</span>
-        </label>
+        <p className="text-[11px] text-ink-300 -mt-1">
+          Kaunse pincodes mein delivery hogi, ye ab har dukaan (branch) ke <b>Vendors → Edit</b> mein set hota hai. Pincode match na ho
+          to upar wali doori (km) ke andar ka address bhi chalega.
+        </p>
 
         <h2 className="text-sm font-semibold text-ink-500 pt-2 border-t border-ink-100">Delivery partner payout (rider earns)</h2>
         <div className="grid grid-cols-2 gap-3">

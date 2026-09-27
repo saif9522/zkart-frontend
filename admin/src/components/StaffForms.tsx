@@ -15,6 +15,7 @@ export function VendorFormModal({ open, vendor, onClose }: { open: boolean; vend
   const blank = {
     phone: '', full_name: '', password: '', shop_name: '', business_name: '', category: 'grocery', gst_number: '',
     whatsapp_number: '', address_line: '', city: 'Garhwa', pincode: '', latitude: '24.1600', longitude: '83.8000', commission_percent: '10',
+    branch_code: '', service_pincodes: '',
   }
   const [f, setF] = useState(blank)
   const [error, setError] = useState('')
@@ -29,6 +30,7 @@ export function VendorFormModal({ open, vendor, onClose }: { open: boolean; vend
             gst_number: vendor.gst_number ?? '', whatsapp_number: (vendor as any).whatsapp_number ?? '', // eslint-disable-line @typescript-eslint/no-explicit-any
             address_line: vendor.address_line ?? '', city: vendor.city ?? '', pincode: (vendor as any).pincode ?? '', // eslint-disable-line @typescript-eslint/no-explicit-any
             latitude: String(vendor.latitude ?? ''), longitude: String(vendor.longitude ?? ''), commission_percent: String(vendor.commission_percent ?? '10'),
+            branch_code: vendor.branch_code ?? '', service_pincodes: vendor.service_pincodes ?? '',
           }
         : blank
     )
@@ -89,6 +91,21 @@ export function VendorFormModal({ open, vendor, onClose }: { open: boolean; vend
           <Field label="Commission %" value={f.commission_percent} onChange={set('commission_percent')} />
         </div>
         <p className="text-[11px] text-ink-300 -mt-1">Latitude/Longitude: Google Maps pe dukaan pe right-click karke copy karein.</p>
+        <div className="rounded-lg border border-forest-100 bg-forest-50/50 p-3 flex flex-col gap-2">
+          <p className="text-xs font-semibold text-forest-700">Branch (Zepto jaisa)</p>
+          <Field label="Branch code (khaali = apne-aap agla number, jaise 00003)" value={f.branch_code} onChange={set('branch_code')} placeholder="00001" />
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold text-ink-400">Delivery pincodes (comma se alag)</span>
+            <textarea
+              rows={2}
+              value={f.service_pincodes}
+              onChange={(e) => setF({ ...f, service_pincodes: e.target.value })}
+              placeholder="110025, 110062"
+              className="rounded-lg border border-ink-100 bg-rice-100 px-3 py-2 text-sm outline-none focus:border-forest-400 font-mono"
+            />
+          </label>
+          <p className="text-[11px] text-ink-300">Delivery hogi agar address ka pincode is list mein ho, <b>ya</b> dukaan se 10 km ke andar ho.</p>
+        </div>
         {error && <p className="text-xs text-chili-600">{error}</p>}
         <Button type="submit" loading={save.isPending}>{vendor ? 'Save changes' : 'Add shop (approved)'}</Button>
       </form>

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 import { ChevronDown, ChevronRight, ShoppingBasket } from 'lucide-react'
 import { catalogApi } from '@/api/catalog'
 import { marketingApi, type HomeSection } from '@/api/marketing'
+import { vendorsApi } from '@/api/vendors'
+import { useLocationStore } from '@/store/location'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { HeroSlider } from '@/components/product/HeroSlider'
@@ -49,6 +51,7 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4">
+      <AreaBanner />
       <HeroSlider />
       <CategoryGrid categories={categories} loading={catLoading} />
       <NearbyStores />
@@ -231,5 +234,29 @@ function CategoryGrid({ categories, loading }: { categories?: CategoryItem[]; lo
             })}
       </div>
     </section>
+  )
+}
+
+/** Zepto-style notice when no branch delivers to the chosen location (products stay visible). */
+function AreaBanner() {
+  const location = useLocationStore((st) => st.location)
+  const pincode = location?.detail.match(/\b\d{6}\b/)?.[0]
+  const { data } = useQuery({
+    queryKey: ['serviceability', location?.lat, location?.lng, pincode],
+    queryFn: () => vendorsApi.serviceability({ lat: location!.lat, lng: location!.lng, pincode }),
+    enabled: !!location,
+    staleTime: 5 * 60 * 1000,
+  })
+  if (!location || !data || data.available) return null
+  return (
+    <div className="mt-4 rounded-xl bg-mango-50 border border-mango-300 px-4 py-3 flex items-center gap-3">
+      <span className="text-2xl" aria-hidden>🛵</span>
+      <div className="min-w-0">
+        <p className="font-semibold text-ink-500 text-sm">{data.message || 'Hum abhi aapke area mein nahi hain. Jald aa rahe hain!'}</p>
+        <p className="text-xs text-ink-400">
+          {location.label} — aap products dekh sakte hain; order ke liye hamare delivery area ka address chunein.
+        </p>
+      </div>
+    </div>
   )
 }
