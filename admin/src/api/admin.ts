@@ -19,7 +19,7 @@ export interface ImportJob {
 }
 
 import { api } from '@/api/client'
-import type { MediaSummary, AdminHomeSection,
+import type { AdminBranch, MediaSummary, AdminHomeSection,
   AdminBanner,
   AdminBlogPost,
   AdminContactMessage,
@@ -69,7 +69,7 @@ export const adminApi = {
   deleteUser: (id: string) => api.delete(`/admin/users/${id}/`),
 
   // Vendors
-  vendors: (params: { status?: string; search?: string; page_size?: number } = {}) =>
+  vendors: (params: { status?: string; search?: string; page_size?: number; branch?: string } = {}) =>
     api.get<Paginated<AdminVendor>>('/admin/vendors/', { params }).then((r) => r.data),
   vendor: (id: string) => api.get<AdminVendor>(`/admin/vendors/${id}/`).then((r) => r.data),
   createVendor: (payload: Record<string, unknown>) => api.post<AdminVendor>('/admin/vendors/', payload).then((r) => r.data),
@@ -244,6 +244,12 @@ export const adminApi = {
         { params: refresh ? { refresh: 1 } : {} }
       )
       .then((r) => r.data),
+
+  // Branches
+  branches: () => api.get<Paginated<AdminBranch>>('/admin/branches/', { params: { page_size: 1000 } }).then((r) => r.data),
+  createBranch: (payload: Partial<AdminBranch>) => api.post<AdminBranch>('/admin/branches/', payload).then((r) => r.data),
+  updateBranch: (id: string, payload: Partial<AdminBranch>) => api.patch<AdminBranch>(`/admin/branches/${id}/`, payload).then((r) => r.data),
+  deleteBranch: (id: string) => api.delete(`/admin/branches/${id}/`),
 
   // Homepage sections
   homeSections: () => api.get<Paginated<AdminHomeSection>>('/admin/home-sections/', { params: { page_size: 200 } }).then((r) => r.data),

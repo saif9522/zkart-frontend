@@ -1,14 +1,13 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { SafeImage } from '@/components/ui/SafeImage'
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import { ShoppingBasket, Star, Truck, RotateCcw, ChevronRight, Heart } from 'lucide-react'
+import { Star, Truck, RotateCcw, ChevronRight, Heart } from 'lucide-react'
 import { catalogApi } from '@/api/catalog'
 import { formatINR } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { QuantityStepper } from '@/components/ui/QuantityStepper'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ReviewsSection } from '@/components/product/ReviewsSection'
+import { ProductGallery } from '@/components/product/ProductGallery'
 import { ProductDescription } from '@/components/product/ProductDescription'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { useCart } from '@/hooks/useCart'
@@ -20,8 +19,6 @@ export function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const isAuthed = !!useAuthStore((s) => s.accessToken)
-  const [activeImage, setActiveImage] = useState(0)
-  const [imageFailed, setImageFailed] = useState(false)
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', slug],
@@ -148,35 +145,7 @@ export function ProductDetailPage() {
       </nav>
 
       <div className="grid sm:grid-cols-2 gap-8">
-        <div>
-          <div className="aspect-square rounded-[var(--radius-card)] bg-forest-50 flex items-center justify-center overflow-hidden">
-            {product.images.length > 0 && !imageFailed ? (
-              <img
-                src={product.images[activeImage].image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-                onError={() => setImageFailed(true)}
-              />
-            ) : (
-              <ShoppingBasket className="h-16 w-16 text-forest-400/40" />
-            )}
-          </div>
-          {product.images.length > 1 && (
-            <div className="flex gap-2 mt-3">
-              {product.images.map((img, i) => (
-                <button
-                  key={img.id}
-                  onClick={() => { setActiveImage(i); setImageFailed(false) }}
-                  className={`h-14 w-14 rounded-lg overflow-hidden border-2 ${i === activeImage ? 'border-forest-600' : 'border-transparent'}`}
-                >
-                  <span className="flex h-full w-full items-center justify-center bg-forest-50">
-                    <SafeImage src={img.image} iconClassName="h-5 w-5 text-forest-400/40" />
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery images={product.images} alt={product.name} />
 
         <div className="flex flex-col">
           <div className="flex items-start justify-between gap-3">
